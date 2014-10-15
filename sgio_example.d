@@ -37,11 +37,12 @@ void printSCSICommand(SCSICommand command)
    write(writeBuffer(command.datain, command.datain.length));
 }
 
-int main()
+void executeIoctls(string deviceName)
 {
+   writeln("Attempting open on device ", deviceName);
    version (Windows)
    {
-      auto file = CreateFileW("\\\\.\\PHYSICALDRIVE1",
+      auto file = CreateFileW(deviceName,
                        GENERIC_WRITE|GENERIC_READ,
                        FILE_SHARE_WRITE|FILE_SHARE_READ,
                        null, OPEN_EXISTING,
@@ -55,7 +56,7 @@ int main()
    }
    version (Posix)
    {
-      auto file = File("/dev/sda", "rb");
+      auto file = File(deviceName, "rb");
       auto dev = new SCSIDevice(file.fileno());
    }
 
@@ -95,6 +96,21 @@ int main()
    version (Windows)
    {
       CloseHandle(file);
+   }
+
+}
+
+int main(string args[])
+{
+   if (args.length <= 1)
+   {
+      writeln("sgio_example <device>+");
+      return 1;
+   }
+
+   for (int idx = 1; idx < args.length; idx++)
+   {
+      executeIoctls(args[idx]);
    }
 
    return 0;
