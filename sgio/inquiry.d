@@ -1,7 +1,7 @@
 
 module sgio.inquiry;
 
-import std.string : format;
+import std.string : strip, format;
 
 import sgio.SCSICommand;
 import sgio.SCSIDevice;
@@ -288,7 +288,7 @@ class UnitSerialNumberInquiry : Inquiry_Base
    override protected void unmarshall()
    {
       m_serial_length = decodeByte(datain, 3);
-      m_unit_serial_number = cast(string)(datain[4..m_serial_length+4]);
+      m_unit_serial_number = strip(cast(string)(datain[4..m_serial_length+4]));
    }
 
    @property
@@ -302,7 +302,8 @@ class UnitSerialNumberInquiry : Inquiry_Base
 
    unittest
    {
-      const string sn = "theSerialNumber123.;";
+      const string sn = "   theSerialNumber123.;  ";
+      const string expected_sn = strip(sn);
 
       ubyte[96] datain_buf;
       datain_buf[1] = VPD.UNIT_SERIAL_NUMBER;
@@ -313,8 +314,7 @@ class UnitSerialNumberInquiry : Inquiry_Base
       auto inquiry = new UnitSerialNumberInquiry(pseudoDev);
 
       assert(inquiry.serial_length == sn.length);
-      assert(inquiry.unit_serial_number == sn);
-      assert(inquiry.unit_serial_number.length == inquiry.serial_length);
+      assert(inquiry.unit_serial_number == expected_sn);
    }
 
 private:
