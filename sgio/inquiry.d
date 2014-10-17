@@ -144,9 +144,9 @@ class StandardInquiry : Inquiry_Base
       m_sync     = decodeByte(datain, 7, 0x10);
       m_cmdque   = decodeByte(datain, 7, 0x02);
 
-      m_t10_vendor_identification = cast(string)(datain[8..16]);
-      m_product_identification    = cast(string)(datain[16..32]);
-      m_product_revision_level    = cast(string)(datain[32..36]);
+      m_t10_vendor_identification = strip(cast(string)(datain[8..16]));
+      m_product_identification    = strip(cast(string)(datain[16..32]));
+      m_product_revision_level    = strip(cast(string)(datain[32..36]));
 
       m_clocking = decodeByte(datain, 56, 0x0c);
       m_qas      = decodeByte(datain, 56, 0x02);
