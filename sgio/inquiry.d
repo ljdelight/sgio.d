@@ -50,7 +50,7 @@ public:
       execute();
 
       // ensure we have a good datain buffer
-      if (m_pagecode != datain[1])
+      if (evpd && m_pagecode != datain[1])
       {
          throw new SCSIException(format("Expecting page 0x%02x but datain page is 0x%02x",
                         m_pagecode, datain[1]));
@@ -183,6 +183,50 @@ public:
       ubyte clocking() { return m_clocking; }
       ubyte qas() { return m_qas; }
       ubyte ius() { return m_ius; }
+   }
+
+   unittest
+   {
+      const string T10_VENDOR = " ATA! ";
+      const string PRODUCT_IDENT = "  product-ASDFE 120G  ";
+      const string REVISION_LEVEL = "  rev 10.5   ";
+
+      ubyte[96] datain_buf;
+      datain_buf[1] = 0x80; // rmb = 1
+      datain_buf[2] = 0x05; // version spc-3
+      datain_buf[3] = 0x39; // normaca=1, hisup=1, rdf=1001b
+      datain_buf[4] = 0x10; // additional length = 16
+      datain_buf[5] = 0xe9; // sccs=1, acc=1, tpgs=2, 3pc=1, protect=1
+      datain_buf[6] = 0xe9; // bqueq=1, encServ=1, vs=1, multip=0, mchngr=1, addr16=1
+      datain_buf[7] = 0x32; // wbus16=1, sync=1, cmdque=1
+      datain_buf[8..8+T10_VENDOR.length] = cast(ubyte[])(T10_VENDOR);
+      datain_buf[16..16+PRODUCT_IDENT.length] = cast(ubyte[])(PRODUCT_IDENT);
+      auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
+      auto inquiry = new StandardInquiry(pseudoDev);
+
+      assert(inquiry.rmb == 1);
+      assert(inquiry.versionField == 5);
+      assert(inquiry.normaca == 1);
+      assert(inquiry.hisup == 1);
+      assert(inquiry.response_data_format == 9);
+      assert(inquiry.additional_length == 16);
+      assert(inquiry.sccs == 1);
+      assert(inquiry.acc == 1);
+      assert(inquiry.tpgs == 2);
+      assert(inquiry.threepc == 1);
+      assert(inquiry.protect == 1);
+
+      // bqueue ?
+      assert(inquiry.encserv == 1);
+      assert(inquiry.multip == 0);
+      // mchngr??
+
+      assert(inquiry.addr16 == 1);
+      assert(inquiry.wbus16 == 1);
+      assert(inquiry.sync == 1);
+      assert(inquiry.cmdque == 1);
+      //assert(inquiry.t10_vendor_identification == strip(T10_VENDOR));
+      //assert(inquiry.product_identification == strip(PRODUCT_IDENT));
    }
 
 private:
