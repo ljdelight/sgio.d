@@ -4,7 +4,21 @@ module sgio.utility;
 import std.string : format;
 import std.xml : isChar;
 
+/**
+ * Decode the byte in the buffer given the offset and bitmask.
+ *    We find the byte, '&' with the mask, then right-shift to get the final result.
+ * Params:
+ *    buffer = The buffer with the byte to decode.
+ *    offset = Byte offset in the the buffer.
+ *    mask   = Bitmask used to decode the byte.
+ */
 ubyte decodeByte(ubyte[] buffer, int offset, ubyte mask = 0xff)
+in
+{
+   assert(buffer != null);
+   assert(offset >= 0 && offset < buffer.length);
+}
+body
 {
    ubyte res = buffer[offset] & mask;
    while (! (mask & 0x01))
