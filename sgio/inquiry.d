@@ -104,7 +104,7 @@ private:
  */
 class StandardInquiry : Inquiry_Base
 {
-
+public:
    /**
     * Constructor for the StandardInquiry; sets opcode to 0x00 and evpd to false.
     * Params:
@@ -123,12 +123,12 @@ class StandardInquiry : Inquiry_Base
    override protected void unmarshall()
    {
       m_rmb      = decodeByte(datain, 1, 0x80);
-      m_version = decodeByte(datain, 2);
+      m_version  = decodeByte(datain, 2);
       m_normaca  = decodeByte(datain, 3, 0x20);
       m_hisup    = decodeByte(datain, 3, 0x10);
 
       m_response_data_format = decodeByte(datain, 3, 0x0f);
-      m_additional_length = decodeByte(datain, 4);
+      m_additional_length    = decodeByte(datain, 4);
 
       m_sccs     = decodeByte(datain, 5, 0x80);
       m_acc      = decodeByte(datain, 5, 0x40);
