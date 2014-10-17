@@ -64,7 +64,7 @@ private:
 public:
    /**
     * SCSIDevice ctor to save the device handle of an open device.
-    * Args:
+    * Params:
     *    device = Handle of opened device to send ioctls.
     */
    this(uint device)
