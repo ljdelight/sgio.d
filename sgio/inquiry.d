@@ -122,68 +122,100 @@ class StandardInquiry : Inquiry_Base
     */
    override protected void unmarshall()
    {
+      m_rmb      = decodeByte(datain, 1, 0x80);
+      m_version = decodeByte(datain, 2);
+      m_normaca  = decodeByte(datain, 3, 0x20);
+      m_hisup    = decodeByte(datain, 3, 0x10);
 
+      m_response_data_format = decodeByte(datain, 3, 0x0f);
+      m_additional_length = decodeByte(datain, 4);
 
-      rmb      = decodeByte(datain, 1, 0x80);
-      version_ = decodeByte(datain, 2);
-      normaca  = decodeByte(datain, 3, 0x20);
-      hisup    = decodeByte(datain, 3, 0x10);
+      m_sccs     = decodeByte(datain, 5, 0x80);
+      m_acc      = decodeByte(datain, 5, 0x40);
+      m_tpgs     = decodeByte(datain, 5, 0x30);
+      m_threepc  = decodeByte(datain, 5, 0x08);
+      m_protect  = decodeByte(datain, 5, 0x01);
 
-      response_data_format = decodeByte(datain, 3, 0x0f);
-      additional_length = decodeByte(datain, 4);
+      m_encserv  = decodeByte(datain, 6, 0x40);
+      m_multip   = decodeByte(datain, 6, 0x10);
+      m_addr16   = decodeByte(datain, 6, 0x01);
 
-      sccs     = decodeByte(datain, 5, 0x80);
-      acc      = decodeByte(datain, 5, 0x40);
-      tpgs     = decodeByte(datain, 5, 0x30);
-      threepc  = decodeByte(datain, 5, 0x08);
-      protect  = decodeByte(datain, 5, 0x01);
+      m_wbus16   = decodeByte(datain, 7, 0x20);
+      m_sync     = decodeByte(datain, 7, 0x10);
+      m_cmdque   = decodeByte(datain, 7, 0x02);
 
-      encserv  = decodeByte(datain, 6, 0x40);
-      multip   = decodeByte(datain, 6, 0x10);
-      addr16   = decodeByte(datain, 6, 0x01);
+      m_t10_vendor_identification = cast(string)(datain[8..16]);
+      m_product_identification    = cast(string)(datain[16..32]);
+      m_product_revision_level    = cast(string)(datain[32..36]);
 
-      wbus16   = decodeByte(datain, 7, 0x20);
-      sync     = decodeByte(datain, 7, 0x10);
-      cmdque   = decodeByte(datain, 7, 0x02);
-
-      t10_vendor_identification = cast(string)(datain[8..16]);
-      product_identification    = cast(string)(datain[16..32]);
-      product_revision_level    = cast(string)(datain[32..36]);
-
-      clocking = decodeByte(datain, 56, 0x0c);
-      qas      = decodeByte(datain, 56, 0x02);
-      ius      = decodeByte(datain, 56, 0x01);
+      m_clocking = decodeByte(datain, 56, 0x0c);
+      m_qas      = decodeByte(datain, 56, 0x02);
+      m_ius      = decodeByte(datain, 56, 0x01);
    }
 
-   ubyte rmb;
-   ubyte version_;
-   ubyte normaca;
-   ubyte hisup;
+   @property
+   {
+      ubyte rmb() { return m_rmb; }
+      ubyte versionField() { return m_version; }
+      ubyte normaca() { return m_normaca; }
+      ubyte hisup() { return m_hisup; }
 
-   ubyte response_data_format;
-   ubyte additional_length;
+      ubyte response_data_format() { return m_response_data_format; }
+      ubyte additional_length() { return m_additional_length; }
 
-   ubyte sccs;
-   ubyte acc;
-   ubyte tpgs;
-   ubyte threepc;
-   ubyte protect;
+      ubyte sccs() { return m_sccs; }
+      ubyte acc() { return m_acc; }
+      ubyte tpgs() { return m_tpgs; }
+      ubyte threepc() { return m_threepc; }
+      ubyte protect() { return m_protect; }
 
-   ubyte encserv;
-   ubyte multip;
-   ubyte addr16;
+      ubyte encserv() { return m_encserv; }
+      ubyte multip() { return m_multip; }
+      ubyte addr16() { return m_addr16; }
+      ubyte wbus16() { return m_wbus16; }
 
-   ubyte wbus16;
-   ubyte sync;
-   ubyte cmdque;
+      ubyte sync() { return m_sync; }
+      ubyte cmdque() { return m_cmdque; }
+      string t10_vendor_identification() { return m_t10_vendor_identification; }
+      string product_identification() { return m_product_identification; }
+      string product_revision_level() { return m_product_revision_level; }
 
-   public string t10_vendor_identification;
-   public string product_identification;
-   public string product_revision_level;
+      ubyte clocking() { return m_clocking; }
+      ubyte qas() { return m_qas; }
+      ubyte ius() { return m_ius; }
+   }
 
-   ubyte clocking;
-   ubyte qas;
-   ubyte ius;
+private:
+
+   ubyte m_rmb;
+   ubyte m_version;
+   ubyte m_normaca;
+   ubyte m_hisup;
+
+   ubyte m_response_data_format;
+   ubyte m_additional_length;
+
+   ubyte m_sccs;
+   ubyte m_acc;
+   ubyte m_tpgs;
+   ubyte m_threepc;
+   ubyte m_protect;
+
+   ubyte m_encserv;
+   ubyte m_multip;
+   ubyte m_addr16;
+
+   ubyte m_wbus16;
+   ubyte m_sync;
+   ubyte m_cmdque;
+
+   public string m_t10_vendor_identification;
+   public string m_product_identification;
+   public string m_product_revision_level;
+
+   ubyte m_clocking;
+   ubyte m_qas;
+   ubyte m_ius;
 
 }
 
