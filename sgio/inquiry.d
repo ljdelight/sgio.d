@@ -209,9 +209,9 @@ private:
    ubyte m_sync;
    ubyte m_cmdque;
 
-   public string m_t10_vendor_identification;
-   public string m_product_identification;
-   public string m_product_revision_level;
+   string m_t10_vendor_identification;
+   string m_product_identification;
+   string m_product_revision_level;
 
    ubyte m_clocking;
    ubyte m_qas;
