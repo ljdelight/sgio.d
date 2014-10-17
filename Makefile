@@ -34,4 +34,4 @@ sgio_example: $(SGIOLIB) sgio_example.d | $(OBJDIR)
 .PHONY: clean
 clean:
 	-rm -rf $(OBJDIR)
-	-rm $(SGIOLIB) sgio_example sgio_example.o
+	-rm -f $(SGIOLIB) sgio_example sgio_example.o
