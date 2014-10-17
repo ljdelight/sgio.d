@@ -27,9 +27,9 @@ $(OBJDIR):
 run: sgio_example
 	sudo LD_LIBRARY_PATH=. ./$< /dev/sda /dev/sdb
 
-sgio_example: $(SGIOLIB) sgio_example.d
-	$(DD) $(DFLAGS) -c sgio_example.d
-	$(DD) $(DLDFLAGS) -L-l:$(SGIOLIB) sgio_example.o
+sgio_example: $(SGIOLIB) sgio_example.d | $(OBJDIR)
+	$(DD) $(DFLAGS) -c sgio_example.d -of$(OBJDIR)/sgio_example.o
+	$(DD) $(DLDFLAGS) -L-l:$(SGIOLIB) $(OBJDIR)/sgio_example.o
 
 .PHONY: clean
 clean:
