@@ -2,6 +2,7 @@
 module sgio.inquiry;
 
 import std.string : strip, format;
+import std.conv;
 
 import sgio.SCSICommand;
 import sgio.SCSIDevice;
@@ -144,9 +145,9 @@ public:
       m_sync     = decodeByte(datain, 7, 0x10);
       m_cmdque   = decodeByte(datain, 7, 0x02);
 
-      m_t10_vendor_identification = strip(cast(string)(datain[8..16]));
-      m_product_identification    = strip(cast(string)(datain[16..32]));
-      m_product_revision_level    = strip(cast(string)(datain[32..36]));
+      m_t10_vendor_identification = bufferGetString(datain,  8, 16);
+      m_product_identification    = bufferGetString(datain, 16, 32);
+      m_product_revision_level    = bufferGetString(datain, 32, 36);
 
       m_clocking = decodeByte(datain, 56, 0x0c);
       m_qas      = decodeByte(datain, 56, 0x02);
@@ -188,7 +189,7 @@ public:
    unittest
    {
       const string T10_VENDOR = " ATA! ";
-      const string PRODUCT_IDENT = "  product-ASDFE 120G  ";
+      const string PRODUCT_IDENT = "  product-ASDFE ";
       const string REVISION_LEVEL = "  rev 10.5   ";
 
       ubyte[96] datain_buf;
@@ -225,8 +226,8 @@ public:
       assert(inquiry.wbus16 == 1);
       assert(inquiry.sync == 1);
       assert(inquiry.cmdque == 1);
-      //assert(inquiry.t10_vendor_identification == strip(T10_VENDOR));
-      //assert(inquiry.product_identification == strip(PRODUCT_IDENT));
+      assert(inquiry.t10_vendor_identification == strip(T10_VENDOR));
+      assert(inquiry.product_identification == strip(PRODUCT_IDENT));
    }
 
 private:
@@ -364,7 +365,7 @@ class UnitSerialNumberInquiry : Inquiry_Base
    override protected void unmarshall()
    {
       m_serial_length = decodeByte(datain, 3);
-      m_unit_serial_number = strip(cast(string)(datain[4..m_serial_length+4]));
+      m_unit_serial_number = bufferGetString(datain, 4, m_serial_length+4);
    }
 
    @property
@@ -379,7 +380,6 @@ class UnitSerialNumberInquiry : Inquiry_Base
    unittest
    {
       const string sn = "   theSerialNumber123.;  ";
-      const string expected_sn = strip(sn);
 
       ubyte[96] datain_buf;
       datain_buf[1] = VPD.UNIT_SERIAL_NUMBER;
@@ -390,7 +390,7 @@ class UnitSerialNumberInquiry : Inquiry_Base
       auto inquiry = new UnitSerialNumberInquiry(pseudoDev);
 
       assert(inquiry.serial_length == sn.length);
-      assert(inquiry.unit_serial_number == expected_sn);
+      assert(inquiry.unit_serial_number == strip(sn));
    }
 
 private:
