@@ -145,9 +145,9 @@ public:
       m_sync     = decodeByte(datain, 7, 0x10);
       m_cmdque   = decodeByte(datain, 7, 0x02);
 
-      m_t10_vendor_identification = bufferGetString(datain,  8, 16);
-      m_product_identification    = bufferGetString(datain, 16, 32);
-      m_product_revision_level    = bufferGetString(datain, 32, 36);
+      m_t10_vendor_identification = bufferGetString(datain[ 8..16]);
+      m_product_identification    = bufferGetString(datain[16..32]);
+      m_product_revision_level    = bufferGetString(datain[32..36]);
 
       m_clocking = decodeByte(datain, 56, 0x0c);
       m_qas      = decodeByte(datain, 56, 0x02);
@@ -365,7 +365,7 @@ class UnitSerialNumberInquiry : Inquiry_Base
    override protected void unmarshall()
    {
       m_serial_length = decodeByte(datain, 3);
-      m_unit_serial_number = bufferGetString(datain, 4, m_serial_length+4);
+      m_unit_serial_number = bufferGetString(datain[4..m_serial_length+4]);
    }
 
    @property

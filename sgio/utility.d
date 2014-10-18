@@ -3,7 +3,6 @@ module sgio.utility;
 
 import std.string : format, strip;
 import std.xml : isChar;
-import std.conv;
 
 /**
  * Decode the byte in the buffer given the offset and bitmask.
@@ -31,37 +30,42 @@ body
 }
 
 /**
- * Get a string from buffer where the string spans [offset_start, offset_end).
+ * Get a string from buffer where the string spans the length of the buffer. The span
+ * does not need to be null-terminated.
  * Params:
- *    buffer = Buffer with an ASCII string to obtain.
- *    offset_start = Beginning byte offset within the buffer where the string starts.
- *    offset_end = Ending byte offset which is not included in the string.
+ *    buffer       = Buffer with an ASCII string to obtain.
  */
-string bufferGetString(ubyte[] buffer, ulong offset_start, ulong offset_end)
-in
+string bufferGetString(const(ubyte)[] buffer)
 {
-   assert(buffer != null);
-   assert(offset_start < offset_end);
-   assert(offset_end <= buffer.length);
-}
-body
-{
-   ulong bufflen = offset_end - offset_start;
+   import std.conv : to;
+
+   if (buffer.length == 0)
+   {
+      return null;
+   }
+   if (buffer[$-1] == '\0')
+   {
+      return strip(to!string(cast(char*)buffer.ptr));
+   }
 
    // add one to the lenth for null-termination
-   ubyte[] temp = new ubyte[bufflen+1];
-   temp[0..bufflen] = buffer[offset_start..offset_end];
-   temp[bufflen] = '\0';
+   auto temp = new ubyte[buffer.length+1];
+   temp[0..$-1] = buffer[];
 
-   return strip(to!string(cast(const char*) temp.ptr));
+   return strip(to!string(cast(char*) temp.ptr));
 }
 
 unittest
 {
    ubyte[] no_null = [' ', 'A', 'B', 'C', ' '];
-   assert("ABC" == bufferGetString(no_null, 0, no_null.length));
-   assert("ABC" == bufferGetString(no_null, 1, no_null.length-1));
-   assert("A" == bufferGetString(no_null, 1, 2));
+   assert("ABC" == bufferGetString(no_null[0..no_null.length]));
+   assert("B" == bufferGetString(no_null[2..3]));
+
+   immutable ubyte[] no_nullImmut = [' ', 'A', 'B', 'C', ' '];
+   assert("ABC" == bufferGetString(no_nullImmut[1..no_nullImmut.length-1]));
+
+   ubyte[] null_term = [' ', 'L', 'o', 'L', '\0'];
+   assert("LoL" == bufferGetString(null_term[0..null_term.length]));
 }
 
 string writeBuffer(ubyte[] buff, ulong length)
