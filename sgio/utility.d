@@ -12,7 +12,7 @@ import std.xml : isChar;
  *    offset = Byte offset in the the buffer.
  *    mask   = Bitmask used to decode the byte.
  */
-ubyte decodeByte(ubyte[] buffer, int offset, ubyte mask = 0xff)
+ubyte decodeByte(const(ubyte)[] buffer, int offset, ubyte mask = 0xff)
 in
 {
    assert(buffer != null);
@@ -68,7 +68,7 @@ unittest
    assert("LoL" == bufferGetString(null_term[0..null_term.length]));
 }
 
-string writeBuffer(ubyte[] buff, ulong length)
+string writeBuffer(const(ubyte)[] buff, ulong length)
 {
    string strBuf = "";
 
