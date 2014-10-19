@@ -289,7 +289,7 @@ class DeviceIdentificationInquiry : Inquiry_Base
     */
    this(SCSIDevice dev)
    {
-      super(dev, VPD.DEVICE_IDENTIFICATION);
+      super(dev, VPD.DEVICE_IDENTIFICATION, true, 0xff);
    }
 
    /**
@@ -297,8 +297,56 @@ class DeviceIdentificationInquiry : Inquiry_Base
     */
    override protected void unmarshall()
    {
+      m_id_descriptors_length = datain[2] << 8 | datain[3];
 
+      size_t offset = 4;
+      while (offset < m_id_descriptors_length)
+      {
+         // TODO: we can get a truncated buffer. probably throw an exception here.
+         assert(offset + 4 + datain[offset+3] <= datain.length);
+         auto id_descriptor = new IdentificationDescriptor(datain[offset..$]);
+         offset += id_descriptor.identifier_length + 4;
+      }
    }
+
+   @property
+   {
+      size_t id_descriptors_length() { return m_id_descriptors_length; }
+   }
+
+   class IdentificationDescriptor
+   {
+      this(const(ubyte)[] buffer)
+      {
+         m_protocol_identifier = decodeByte(buffer, 0, 0xf0);
+         m_code_set            = decodeByte(buffer, 0, 0x0f);
+         m_piv                 = decodeByte(buffer, 1, 0x80);
+         m_association         = decodeByte(buffer, 1, 0x30);
+         m_identifier_type     = decodeByte(buffer, 1, 0x0f);
+         m_identifier_length = buffer[3];
+         m_identifier = buffer[4..m_identifier_length].dup;
+      }
+
+      @property
+      {
+         ubyte piv() { return m_piv; }
+         ubyte association() { return m_association; }
+         ubyte identifier_type() { return m_identifier_type; }
+         ubyte identifier_length() { return m_identifier_length; }
+      }
+
+   private:
+      ubyte m_protocol_identifier;
+      ubyte m_code_set;
+      ubyte m_piv;
+      ubyte m_association;
+      ubyte m_identifier_type;
+      ubyte m_identifier_length;
+      ubyte[] m_identifier;
+   }
+private:
+   IdentificationDescriptor[] m_identification_list;
+   size_t m_id_descriptors_length;
 }
 
 

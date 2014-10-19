@@ -83,6 +83,11 @@ void executeIoctls(string deviceName)
       printSCSICommand(inquiry3);
       writeln("Serial: ", inquiry3.unit_serial_number);
 
+
+      writeln("\n\n******** Device Identification Inquiry");
+      auto inquiry4 = new DeviceIdentificationInquiry(dev);
+      printSCSICommand(inquiry4);
+
    }
    catch (SCSIException err)
    {
