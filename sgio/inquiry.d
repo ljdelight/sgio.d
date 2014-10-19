@@ -283,6 +283,8 @@ private:
  */
 class DeviceIdentificationInquiry : Inquiry_Base
 {
+   import std.container : make, Array;
+
    /**
     * Params:
     *    dev = Device to execute the ioctl.
@@ -298,19 +300,22 @@ class DeviceIdentificationInquiry : Inquiry_Base
    override protected void unmarshall()
    {
       m_id_descriptors_length = datain[2] << 8 | datain[3];
-
+      m_identification_list = make!(Array!IdentificationDescriptor)();
       size_t offset = 4;
       while (offset < m_id_descriptors_length)
       {
          // TODO: we can get a truncated buffer. probably throw an exception here.
          assert(offset + 4 + datain[offset+3] <= datain.length);
          auto id_descriptor = new IdentificationDescriptor(datain[offset..$]);
+         m_identification_list ~= id_descriptor;
+
          offset += id_descriptor.identifier_length + 4;
       }
    }
 
    @property
    {
+      auto identification_list() { return m_identification_list; }
       size_t id_descriptors_length() { return m_id_descriptors_length; }
    }
 
@@ -329,10 +334,13 @@ class DeviceIdentificationInquiry : Inquiry_Base
 
       @property
       {
+         ubyte protocol_identifier() { return m_protocol_identifier; }
+         ubyte code_set() { return m_code_set; }
          ubyte piv() { return m_piv; }
          ubyte association() { return m_association; }
          ubyte identifier_type() { return m_identifier_type; }
          ubyte identifier_length() { return m_identifier_length; }
+         ubyte[] identifier() { return m_identifier; }
       }
 
    private:
@@ -344,8 +352,60 @@ class DeviceIdentificationInquiry : Inquiry_Base
       ubyte m_identifier_length;
       ubyte[] m_identifier;
    }
+
+   unittest
+   {
+      const string T10_VENDOR = " ATA! ";
+      const string PRODUCT_IDENT = "  product-ASDFE ";
+      const string REVISION_LEVEL = " 0.2";
+
+      string scsiName = "asdfasdf"; //"さいごutf8";
+      // add one to the string here for null termination
+      size_t scsiNameLength_multiple4 = (scsiName.length+1) + (4 - (scsiName.length+1) % 4) % 4;
+      assert(scsiNameLength_multiple4 >= scsiName.length);
+      assert(scsiNameLength_multiple4 <= 256);
+      assert(scsiNameLength_multiple4 % 4 == 0);
+
+      size_t id_descriptor_length = 4 + scsiNameLength_multiple4; // 4B of header plus string
+      ubyte[] id_descriptor = new ubyte[id_descriptor_length];
+      id_descriptor[0] = 0xe9; // protocolid=14, codeset=9
+      id_descriptor[1] = 0xa8; // piv=1, association=2, idtype=8 (scsi name string)
+      id_descriptor[3] = cast(ubyte) scsiNameLength_multiple4;
+      id_descriptor[4..4+scsiName.length] = cast(ubyte[]) scsiName;
+
+      size_t totalDescriptorsLength = 2*(id_descriptor.length);
+      ubyte[0xff] datain_buf;
+      datain_buf[1] = 0x83; // pagecode=0x83
+      datain_buf[2] = cast(ubyte)(totalDescriptorsLength >> 8);
+      datain_buf[3] = (totalDescriptorsLength) & 0xff;
+
+      // first write of identification descriptor
+      size_t offset = 4;
+      datain_buf[offset..offset+id_descriptor.length] = id_descriptor[];
+
+      // second write of identification descriptor
+      offset = offset + id_descriptor.length;
+      datain_buf[offset..offset+id_descriptor.length] = id_descriptor[];
+
+      auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
+      auto inquiry = new DeviceIdentificationInquiry(pseudoDev);
+
+      assert(inquiry.id_descriptors_length == totalDescriptorsLength);
+      assert(inquiry.identification_list.length == 2);
+      foreach (descriptor; inquiry.identification_list())
+      {
+         assert(descriptor.protocol_identifier == 14);
+         assert(descriptor.code_set == 9);
+         assert(descriptor.piv == 1);
+         assert(descriptor.association == 2);
+         assert(descriptor.identifier_type == 8);
+         assert(descriptor.identifier_length == scsiNameLength_multiple4);
+         assert(bufferGetString(descriptor.identifier) == scsiName);
+      }
+
+   }
 private:
-   IdentificationDescriptor[] m_identification_list;
+   Array!(IdentificationDescriptor) m_identification_list;
    size_t m_id_descriptors_length;
 }
 
