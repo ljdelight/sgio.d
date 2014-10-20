@@ -355,11 +355,7 @@ class DeviceIdentificationInquiry : Inquiry_Base
 
    unittest
    {
-      const string T10_VENDOR = " ATA! ";
-      const string PRODUCT_IDENT = "  product-ASDFE ";
-      const string REVISION_LEVEL = " 0.2";
-
-      string scsiName = "asdfasdf"; //"さいごutf8";
+      string scsiName = "さいごutf8";
       // add one to the string here for null termination
       size_t scsiNameLength_multiple4 = (scsiName.length+1) + (4 - (scsiName.length+1) % 4) % 4;
       assert(scsiNameLength_multiple4 >= scsiName.length);
