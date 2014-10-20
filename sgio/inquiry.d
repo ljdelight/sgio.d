@@ -329,7 +329,7 @@ class DeviceIdentificationInquiry : Inquiry_Base
          m_association         = decodeByte(buffer, 1, 0x30);
          m_identifier_type     = decodeByte(buffer, 1, 0x0f);
          m_identifier_length = buffer[3];
-         m_identifier = buffer[4..m_identifier_length].dup;
+         m_identifier = buffer[4..4+m_identifier_length].dup;
       }
 
       @property
@@ -520,3 +520,117 @@ private:
 }
 
 
+/**
+ * ManagementNetworkAddressInquiry class to encapsulate the unmarshall'ing of the datain buffer.
+ */
+class ManagementNetworkAddressInquiry : Inquiry_Base
+{
+   import std.container : make, Array;
+
+   /**
+    * Params:
+    *    dev = Device to execute the ioctl.
+    */
+   this(SCSIDevice dev)
+   {
+      super(dev, VPD.MANAGEMENT_NETWORK_ADDRESS, true, 0x1000);
+   }
+
+   /**
+    * Method used to unmarshall the datain buffer.
+    */
+   override protected void unmarshall()
+   {
+      m_network_descriptors_length = datain[2] << 8 | datain[3];
+      m_network_descriptors = make!(Array!NetworkServicesDescriptor)();
+
+      size_t offset = 4;
+      while (offset < m_network_descriptors_length)
+      {
+         // TODO: we can get a truncated buffer. probably throw an exception here.
+         assert(offset + 4 + datain[offset+3] <= datain.length);
+         auto ns_descriptor = new NetworkServicesDescriptor(datain[offset..$]);
+         m_network_descriptors ~= ns_descriptor;
+
+         offset += ns_descriptor.network_address_length + 4;
+      }
+   }
+
+   @property
+   {
+      auto network_descriptors() { return m_network_descriptors; }
+      size_t network_descriptors_length() { return m_network_descriptors_length; }
+   }
+
+   class NetworkServicesDescriptor
+   {
+      this(const(ubyte)[] buffer)
+      {
+         m_association  = decodeByte(buffer, 0, 0x60);
+         m_service_type = decodeByte(buffer, 0, 0x1f);
+         m_network_address_length = cast(uint)(buffer[2]) << 8 | buffer[3];
+         m_network_address   = buffer[4..4+m_network_address_length].dup;
+      }
+
+      @property
+      {
+         ubyte association() { return m_association; }
+         ubyte service_type() { return m_service_type; }
+         size_t network_address_length() { return m_network_address_length; }
+         ubyte[] network_address() { return m_network_address; }
+      }
+
+   private:
+      ubyte m_association;
+      ubyte m_service_type;
+      size_t m_network_address_length;
+      ubyte[] m_network_address;
+   }
+
+   unittest
+   {
+      string url = "somereallylongprefix://[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:43255";
+      // add one to the string here for null termination
+      size_t urlLength_multiple4 = (url.length+1) + (4 - (url.length+1) % 4) % 4;
+      size_t ns_descriptor_length = 4 + urlLength_multiple4; // 4B of header plus string
+
+      ubyte[] ns_descriptor = new ubyte[ns_descriptor_length];
+      ns_descriptor[0] = 0xcf; // association=2, servicetype=15
+      ns_descriptor[2] = cast(ubyte) urlLength_multiple4 >> 8;
+      ns_descriptor[3] = urlLength_multiple4 & 0xff;
+      ns_descriptor[4..4+url.length] = cast(ubyte[]) url;
+
+      int num_test_descriptors = 3;
+      size_t totalDescriptorsLength = num_test_descriptors*(ns_descriptor.length);
+
+      ubyte[0x1000] datain_buf;
+      datain_buf[1] = VPD.MANAGEMENT_NETWORK_ADDRESS;
+      datain_buf[2] = cast(ubyte)(totalDescriptorsLength >> 8);
+      datain_buf[3] = (totalDescriptorsLength) & 0xff;
+
+      // first write of identification descriptor
+      size_t offset = 4;
+      for (int count = 0; count < num_test_descriptors; count++)
+      {
+         datain_buf[offset..offset+ns_descriptor.length] = ns_descriptor[];
+         offset = offset + ns_descriptor.length;
+      }
+
+      auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
+      auto inquiry = new ManagementNetworkAddressInquiry(pseudoDev);
+
+      assert(inquiry.network_descriptors_length == totalDescriptorsLength);
+      assert(inquiry.network_descriptors.length == num_test_descriptors);
+      foreach (descriptor; inquiry.network_descriptors())
+      {
+         assert(descriptor.association == 2);
+         assert(descriptor.service_type == 15);
+         assert(descriptor.network_address_length == urlLength_multiple4);
+         assert(bufferGetString(descriptor.network_address) == url);
+      }
+
+   }
+private:
+   Array!(NetworkServicesDescriptor) m_network_descriptors;
+   size_t m_network_descriptors_length;
+}

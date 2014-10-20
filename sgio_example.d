@@ -88,6 +88,17 @@ void executeIoctls(string deviceName)
       auto inquiry4 = new DeviceIdentificationInquiry(dev);
       printSCSICommand(inquiry4);
 
+      try
+      {
+         writeln("\n\n******** Management Network Address");
+         auto inquiry5 = new ManagementNetworkAddressInquiry(dev);
+         printSCSICommand(inquiry5);
+      }
+      catch (SCSICheckConditionException err)
+      {
+         writeln("MNA VPD Page is not supported for this device");
+      }
+
    }
    catch (SCSIException err)
    {
