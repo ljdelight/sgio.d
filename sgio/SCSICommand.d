@@ -5,6 +5,18 @@ import std.string : format;
 import sgio.SCSIDevice;
 import sgio.exceptions;
 
+enum OPCODE : int
+{
+   INQUIRY            = 0x12,
+   READ_CAPACITY_10   = 0x25,
+   READ_10            = 0x28,
+   READ_12            = 0xa8,
+   READ_16            = 0x88,
+   WRITE_10           = 0x2a,
+   WRITE_12           = 0xaa,
+   WRITE_16           = 0x8a
+}
+
 abstract class SCSICommand
 {
 private:
