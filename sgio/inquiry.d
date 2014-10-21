@@ -3,6 +3,7 @@ module sgio.inquiry;
 
 import std.string : strip, format;
 import std.conv;
+import std.bitmanip;
 
 import sgio.SCSICommand;
 import sgio.SCSIDevice;
@@ -299,7 +300,7 @@ class DeviceIdentificationInquiry : Inquiry_Base
     */
    override protected void unmarshall()
    {
-      m_id_descriptors_length = datain[2] << 8 | datain[3];
+      m_id_descriptors_length = bigEndianToNative!ushort(datain[2..4]);
       m_identification_list = make!(Array!IdentificationDescriptor)();
       size_t offset = 4;
       while (offset < m_id_descriptors_length)
@@ -537,14 +538,14 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
     */
    override protected void unmarshall()
    {
-      m_network_descriptors_length = datain[2] << 8 | datain[3];
+      m_network_descriptors_length = bigEndianToNative!ushort(datain[2..4]);
       m_network_descriptors = make!(Array!NetworkServicesDescriptor)();
 
       size_t offset = 4;
       while (offset < m_network_descriptors_length)
       {
          // TODO: we can get a truncated buffer. probably throw an exception here.
-         assert(offset + 4 + datain[offset+3] <= datain.length);
+         assert(offset + 4 + (datain[offset+2] << 8) + datain[offset+3] <= datain.length);
          auto ns_descriptor = new NetworkServicesDescriptor(datain[offset..$]);
          m_network_descriptors ~= ns_descriptor;
 
