@@ -4,6 +4,7 @@ import std.stdio                 : write, writef, writeln, writefln, File;
 import core.sys.windows.windows;
 
 import sgio.inquiry;
+import sgio.read;
 import sgio.SCSIDevice;
 import sgio.utility;
 import sgio.exceptions;
@@ -98,6 +99,13 @@ void executeIoctls(string deviceName)
       {
          writeln("MNA VPD Page is not supported for this device");
       }
+
+
+      writeln("\n\n******** Read Capacity 10");
+      auto inquiry6 = new ReadCapacity10(dev);
+      printSCSICommand(inquiry6);
+      writeln("returned_lba: ", inquiry6.returned_lba);
+      writeln("block_length: ", inquiry6.block_length);
 
    }
    catch (SCSIException err)
