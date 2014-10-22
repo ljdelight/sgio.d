@@ -545,7 +545,8 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       while (offset < m_network_descriptors_length)
       {
          // TODO: we can get a truncated buffer. probably throw an exception here.
-         assert(offset + 4 + (datain[offset+2] << 8) + datain[offset+3] <= datain.length);
+         assert(offset + 4 + bigEndianToNative!ushort(cast(ubyte[2]) datain[offset+2..offset+4])
+                     <= datain.length);
          auto ns_descriptor = new NetworkServicesDescriptor(datain[offset..$]);
          m_network_descriptors ~= ns_descriptor;
 
@@ -565,7 +566,7 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       {
          m_association  = decodeByte(buffer, 0, 0x60);
          m_service_type = decodeByte(buffer, 0, 0x1f);
-         m_network_address_length = cast(uint)(buffer[2]) << 8 | buffer[3];
+         m_network_address_length = bigEndianToNative!ushort( cast(ubyte[2]) buffer[2..4]);
          m_network_address   = buffer[4..4+m_network_address_length].dup;
       }
 

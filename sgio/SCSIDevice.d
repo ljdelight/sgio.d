@@ -3,7 +3,7 @@ module sgio.SCSIDevice;
 
 import sgio.exceptions;
 import std.conv;
-
+import std.bitmanip;
 import std.stdio                 : write, writef, writeln, writefln, File;
 
 version (Posix)
@@ -104,7 +104,7 @@ public:
          scsiPassThrough.SenseInfoLength    = SENSE_LENGTH;
          scsiPassThrough.DataIn             = SCSI_IOCTL_DATA_IN;
          scsiPassThrough.DataBuffer         = datain_buf.ptr;
-         scsiPassThrough.DataTransferLength = (cdb_buf[3] << 8) | cdb_buf[4];
+         scsiPassThrough.DataTransferLength = bigEndianToNative!ushort(cast(ubyte[2]) cdb_buf[3..5]);
          // TODO(ljdelight): dataout needs setup
 
          writeln("THE CDB:");
