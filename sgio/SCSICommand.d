@@ -23,8 +23,10 @@ private:
    ubyte[] m_sense;
    ubyte[] m_dataout;
    ubyte[] m_datain;
-   ubyte[] m_cdb;
    SCSIDevice m_device;
+
+protected:
+   ubyte[] m_cdb;
 
 public:
    @property
