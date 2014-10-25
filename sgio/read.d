@@ -84,7 +84,6 @@ public:
     *
     * Params:
     *    dev = Device to send the scsi command
-    *    blocksize = Blocksize of the device
     *    lba = Starting LBA of the read
     *    transfer_length = Number of blocks to read
     *    group_num =
@@ -93,10 +92,10 @@ public:
     *    fua = Force unit access
     *    rarc = Rebuild assist recovery control
     */
-   this(SCSIDevice dev, int blocksize, uint lba, ushort transfer_length,
+   this(SCSIDeviceBS dev, uint lba, ushort transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, blocksize*transfer_length);
+      super(dev, 0, dev.blocksize*transfer_length);
       super.init_cdb(OPCODE.READ_10);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
@@ -120,7 +119,7 @@ public:
       datain_buf[0x1fe..0x200] = [0x55, 0xaa];
 
       auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
-      auto read10 = new Read10(pseudoDev, 512, 0, 1);
+      auto read10 = new Read10(pseudoDev, 0, 1);
 
       assert(read10.datain[0x1fe..0x200] == [0x55, 0xaa]);
    }
@@ -140,7 +139,6 @@ public:
     *
     * Params:
     *    dev = Device to send the scsi command
-    *    blocksize = Blocksize of the device
     *    lba = Starting LBA of the read
     *    transfer_length = Number of blocks to read
     *    group_num =
@@ -149,10 +147,10 @@ public:
     *    fua = Force unit access
     *    rarc = Rebuild assist recovery control
     */
-   this(SCSIDevice dev, int blocksize, uint lba, uint transfer_length,
+   this(SCSIDeviceBS dev, uint lba, uint transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, blocksize*transfer_length);
+      super(dev, 0, dev.blocksize*transfer_length);
       super.init_cdb(OPCODE.READ_12);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
@@ -176,7 +174,7 @@ public:
       datain_buf[0x1fe..0x200] = [0x55, 0xaa];
 
       auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
-      auto read12 = new Read12(pseudoDev, 512, 0, 1);
+      auto read12 = new Read12(pseudoDev, 0, 1);
 
       assert(read12.datain[0x1fe..0x200] == [0x55, 0xaa]);
    }
@@ -196,7 +194,6 @@ public:
     *
     * Params:
     *    dev = Device to send the scsi command
-    *    blocksize = Blocksize of the device
     *    lba = Starting LBA of the read
     *    transfer_length = Number of blocks to read
     *    group_num =
@@ -205,10 +202,10 @@ public:
     *    fua = Force unit access
     *    rarc = Rebuild assist recovery control
     */
-   this(SCSIDevice dev, int blocksize, ulong lba, uint transfer_length,
+   this(SCSIDeviceBS dev, ulong lba, uint transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, blocksize*transfer_length);
+      super(dev, 0, dev.blocksize*transfer_length);
       super.init_cdb(OPCODE.READ_16);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
@@ -232,7 +229,7 @@ public:
       datain_buf[0x1fe..0x200] = [0x55, 0xaa];
 
       auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
-      auto read16 = new Read16(pseudoDev, 512, 0, 1);
+      auto read16 = new Read16(pseudoDev, 0, 1);
 
       assert(read16.datain[0x1fe..0x200] == [0x55, 0xaa]);
    }

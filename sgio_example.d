@@ -58,7 +58,7 @@ void executeIoctls(string deviceName)
    version (Posix)
    {
       auto file = File(deviceName, "rb");
-      auto dev = new SCSIDevice(file.fileno());
+      auto dev = new SCSIDeviceBS(file.fileno());
    }
 
    try
@@ -109,12 +109,12 @@ void executeIoctls(string deviceName)
 
 
       writeln("\n\n******** Read10 1 block at LBA 0");
-      auto read10 = new Read10(dev, readCapacity.blocksize, 0, 1);
+      auto read10 = new Read10(dev, 0, 1);
       printSCSICommand(read10);
 
 
       writeln("\n\n******** Read16 1 block at LBA 0");
-      auto read16 = new Read16(dev, readCapacity.blocksize, 0, 1);
+      auto read16 = new Read16(dev, 0, 1);
       printSCSICommand(read16);
 
    }
