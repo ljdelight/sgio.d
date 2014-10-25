@@ -108,9 +108,14 @@ void executeIoctls(string deviceName)
       writeln("block_length: ", readCapacity.block_length);
 
 
-      writeln("\n\n******** Read10 1 block at LBA 1");
+      writeln("\n\n******** Read10 1 block at LBA 0");
       auto read10 = new Read10(dev, readCapacity.block_length, 0, 1);
       printSCSICommand(read10);
+
+
+      writeln("\n\n******** Read16 1 block at LBA 0");
+      auto read16 = new Read16(dev, readCapacity.block_length, 0, 1);
+      printSCSICommand(read16);
 
    }
    catch (SCSIException err)
