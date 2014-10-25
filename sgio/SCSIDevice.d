@@ -189,6 +189,43 @@ public:
    }
 }
 
+/**
+ * Class to hold the device handle, block size, and total blocks in a single place. This sends
+ * a ReadCapacity(10) command to the device to collect the values; to avoid sending the command,
+ * override the defaults in the constructor.
+ */
+class SCSIDeviceBS : SCSIDevice
+{
+public:
+   this(uint device, int blocksize=-1, ulong totalLBAs=-1)
+   {
+      super(device);
+      if (blocksize == -1 || totalLBAs == -1)
+      {
+         import sgio.read;
+         auto rc10 = new ReadCapacity10(this);
+         m_blocksize = rc10.blocksize;
+         m_total_lba = rc10.total_lba;
+      }
+      else
+      {
+         m_blocksize = blocksize;
+         m_total_lba = totalLBAs;
+      }
+   }
+
+   @property
+   {
+      int blocksize() { return m_blocksize; }
+      ulong total_lba() { return m_total_lba; }
+   }
+
+private:
+   int m_blocksize;
+   ulong m_total_lba;
+}
+
+
 version (unittest)
 {
    /**
@@ -201,7 +238,7 @@ version (unittest)
     *    datain, sense) and then pass the device to a SCSICommand. The unmarshall will work on
     *    those buffers.
     */
-   class FakeSCSIDevice : SCSIDevice
+   class FakeSCSIDevice : SCSIDeviceBS
    {
    public:
       /**
@@ -214,7 +251,7 @@ version (unittest)
        */
       this(ubyte[] dataout_buf = null, ubyte[] datain_buf = null, ubyte[] sense_buf = null)
       {
-         super(-1);
+         super(-1, 512, 10000);
          m_dataout_buf = dataout_buf.dup;
          m_datain_buf = datain_buf.dup;
          m_sense_buf = sense_buf.dup;

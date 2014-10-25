@@ -58,7 +58,7 @@ void executeIoctls(string deviceName)
    version (Posix)
    {
       auto file = File(deviceName, "rb");
-      auto dev = new SCSIDevice(file.fileno());
+      auto dev = new SCSIDeviceBS(file.fileno());
    }
 
    try
@@ -102,10 +102,20 @@ void executeIoctls(string deviceName)
 
 
       writeln("\n\n******** Read Capacity 10");
-      auto inquiry6 = new ReadCapacity10(dev);
-      printSCSICommand(inquiry6);
-      writeln("returned_lba: ", inquiry6.returned_lba);
-      writeln("block_length: ", inquiry6.block_length);
+      auto readCapacity = new ReadCapacity10(dev);
+      printSCSICommand(readCapacity);
+      writeln("total_lba: ", readCapacity.total_lba);
+      writeln("blocksize: ", readCapacity.blocksize);
+
+
+      writeln("\n\n******** Read10 1 block at LBA 0");
+      auto read10 = new Read10(dev, 0, 1);
+      printSCSICommand(read10);
+
+
+      writeln("\n\n******** Read16 1 block at LBA 0");
+      auto read16 = new Read16(dev, 0, 1);
+      printSCSICommand(read16);
 
    }
    catch (SCSIException err)
