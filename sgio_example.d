@@ -104,17 +104,17 @@ void executeIoctls(string deviceName)
       writeln("\n\n******** Read Capacity 10");
       auto readCapacity = new ReadCapacity10(dev);
       printSCSICommand(readCapacity);
-      writeln("returned_lba: ", readCapacity.returned_lba);
-      writeln("block_length: ", readCapacity.block_length);
+      writeln("total_lba: ", readCapacity.total_lba);
+      writeln("blocksize: ", readCapacity.blocksize);
 
 
       writeln("\n\n******** Read10 1 block at LBA 0");
-      auto read10 = new Read10(dev, readCapacity.block_length, 0, 1);
+      auto read10 = new Read10(dev, readCapacity.blocksize, 0, 1);
       printSCSICommand(read10);
 
 
       writeln("\n\n******** Read16 1 block at LBA 0");
-      auto read16 = new Read16(dev, readCapacity.block_length, 0, 1);
+      auto read16 = new Read16(dev, readCapacity.blocksize, 0, 1);
       printSCSICommand(read16);
 
    }

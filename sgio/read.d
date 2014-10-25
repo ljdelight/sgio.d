@@ -29,14 +29,14 @@ class ReadCapacity10 : SCSICommand
     */
    override protected void unmarshall()
    {
-      m_returned_lba = bigEndianToNative!uint(datain[0..4]);
-      m_block_length = bigEndianToNative!uint(datain[4..8]);
+      m_total_lba = bigEndianToNative!uint(datain[0..4]);
+      m_blocksize = bigEndianToNative!uint(datain[4..8]);
    }
 
    @property
    {
-      uint returned_lba() { return m_returned_lba; }
-      uint block_length() { return m_block_length; }
+      uint total_lba() { return m_total_lba; }
+      uint blocksize() { return m_blocksize; }
    }
 
    unittest
@@ -48,13 +48,13 @@ class ReadCapacity10 : SCSICommand
       auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
       auto readCapacity10 = new ReadCapacity10(pseudoDev);
 
-      assert(readCapacity10.returned_lba == 104392);
-      assert(readCapacity10.block_length == 512);
+      assert(readCapacity10.total_lba == 104392);
+      assert(readCapacity10.blocksize == 512);
    }
 
 private:
-   uint m_returned_lba;
-   uint m_block_length;
+   uint m_total_lba;
+   uint m_blocksize;
 }
 
 /**
