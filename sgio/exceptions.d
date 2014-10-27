@@ -25,14 +25,14 @@ class SCSICheckConditionException : SCSIException
    this(ubyte[] sense)
    {
       // SPC 4.5.3 Fixed format sense data
-      m_valid = decodeByte(sense, 0, 0x80);
+      m_valid         = decodeByte(sense, 0, 0x80);
       m_response_code = decodeByte(sense, 0, 0x7f);
 
       if (m_response_code != SenseFormat.CURRENT_INFO_FIXED &&
           m_response_code != SenseFormat.DEFERRED_ERR_FIXED)
       {
          throw new SCSIException(format("SCSICheckConditionException was thrown but"
-            ~ "response_code (0x%02x) doesn't imply fixed-format sense."
+            ~ " response_code (0x%02x) doesn't imply fixed-format sense."
             ~ " Raising SCSIException instead", m_response_code));
       }
 
@@ -49,6 +49,7 @@ class SCSICheckConditionException : SCSIException
       m_field_replaceable_unit_code  = sense[14];
       m_ascq = m_additional_sense_code << 8 + m_additional_sense_code_qualifier;
 
+      // TODO: use the err bytes to do lookups and create a better message string
       super(format("Check condition raised. ASC+Q=0x%04x", m_ascq));
    }
 
