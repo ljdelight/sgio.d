@@ -35,20 +35,22 @@ public:
     * Inquiry_Base constructor will initialize the CDB, then execute the Inquiry on the device.
     * Child classes override unmarshall() to extract information from the datain buffer.
     *
+    * Throws:
+    *    SCSIException if eVPD is enabled and datain[1] does not match the pagecode
     * Params:
     *    dev = The device to send the SCSI command.
     *    pagecode = Pagecode of the SCSI Inquiry (defaults to 0, a std inquiry).
     *    evpn = Enable Vital Product Data is used to send SCSI VPD inquries (defaults to true).
-    *    alloclen = Byte length to allocate for the datain buffer.
+    *    datain_len = Byte length to allocate for the datain buffer.
     */
-   this(SCSIDevice dev, ubyte pagecode = 0, bool evpd = true, int alloclen = 96)
+   this(SCSIDevice dev, ubyte pagecode = 0, bool evpd = true, int datain_len = 96)
    {
-      // call super to allocate 0 for dataout buffer, and alloclen for datain buffer
-      super(dev, 0, alloclen);
+      // call super to allocate 0 for dataout buffer, and datain_len for datain buffer
+      super(dev, 0, datain_len);
       this.m_pagecode = pagecode;
       this.m_evpd = evpd;
 
-      init_cdb(m_pagecode, alloclen);
+      init_cdb(m_pagecode, datain_len);
       execute();
 
       // ensure we have a good datain buffer
@@ -320,8 +322,16 @@ class DeviceIdentificationInquiry : Inquiry_Base
       size_t id_descriptors_length() { return m_id_descriptors_length; }
    }
 
+   /**
+    * IdentificationDescriptor is used to unmarshall one of the descriptors from the list held in
+    * the Device Identification inquiry.
+    */
    class IdentificationDescriptor
    {
+      /**
+       * Params:
+       *    buffer = Buffer containing the identification descriptor to unmarshall
+       */
       this(const(ubyte)[] buffer)
       {
          m_protocol_identifier = decodeByte(buffer, 0, 0xf0);
@@ -560,8 +570,15 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       size_t network_descriptors_length() { return m_network_descriptors_length; }
    }
 
+   /**
+    * NetworkServicesDescriptor is used to unmarshall a single NSD from the MNA VPD page.
+    */
    class NetworkServicesDescriptor
    {
+      /**
+       * Params:
+       *    buffer = Buffer slice with the network service descriptor
+       */
       this(const(ubyte)[] buffer)
       {
          m_association  = decodeByte(buffer, 0, 0x60);

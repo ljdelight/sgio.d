@@ -15,11 +15,11 @@ class ReadCapacity10 : SCSICommand
    /**
     * Params:
     *    dev = Device to execute the ioctl.
-    *    alloclen = Datain buffer length
+    *    datain_len = Datain buffer length
     */
-   this(SCSIDevice dev, int alloclen = 8)
+   this(SCSIDevice dev, int datain_len = 8)
    {
-      super(dev, 0, alloclen);
+      super(dev, 0, datain_len);
       super.init_cdb(OPCODE.READ_CAPACITY_10);
       execute();
    }

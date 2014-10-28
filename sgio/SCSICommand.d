@@ -17,6 +17,11 @@ enum OPCODE : int
    WRITE_16           = 0x8a
 }
 
+/**
+ * SCSICommand encapsulates generic functinality that is needed for each SCSI command that can be
+ * sent to a device. All new commands must implement this abstract class, ensure to call init_cdb,
+ * and override the unmarshall function.
+ */
 abstract class SCSICommand
 {
 private:
