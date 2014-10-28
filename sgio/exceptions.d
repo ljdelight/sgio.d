@@ -3,6 +3,9 @@ module sgio.exceptions;
 import sgio.utility;
 import std.string : format;
 
+/**
+ * SCSIException is the base class for all scsi exceptions.
+ */
 class SCSIException : Exception
 {
    this(string message)
@@ -11,6 +14,9 @@ class SCSIException : Exception
    }
 }
 
+/**
+ * IoctlFailException is used when the ioctl to the device fails
+ */
 class IoctlFailException : SCSIException
 {
    this(string message)
@@ -19,9 +25,15 @@ class IoctlFailException : SCSIException
    }
 }
 
-
+/**
+ * SCSICheckConditionException is used on a check condition
+ */
 class SCSICheckConditionException : SCSIException
 {
+   /**
+    * Params:
+    *    sense = Sense buffer that is unmarshalled
+    */
    this(ubyte[] sense)
    {
       // SPC 4.5.3 Fixed format sense data
@@ -103,6 +115,9 @@ private:
    int m_ascq;
 }
 
+/**
+ * BadOpCodeException is used when the OPCODE is invalid
+ */
 class BadOpCodeException : SCSIException
 {
    this(string message)
