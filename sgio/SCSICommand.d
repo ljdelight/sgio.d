@@ -26,11 +26,11 @@ abstract class SCSICommand
 {
 private:
    ubyte[] m_sense;
-   ubyte[] m_dataout;
    ubyte[] m_datain;
    SCSIDevice m_device;
 
 protected:
+   ubyte[] m_dataout;
    ubyte[] m_cdb;
 
 public:
