@@ -49,8 +49,10 @@ class SCSICheckConditionException : SCSIException
       m_field_replaceable_unit_code  = sense[14];
       m_ascq = m_additional_sense_code << 8 + m_additional_sense_code_qualifier;
 
-      // TODO: use the err bytes to do lookups and create a better message string
-      super(format("Check condition raised. ASC+Q=0x%04x", m_ascq));
+      string sensekey_description = ((m_sense_key < SenseKeyString.length) ?
+                                       SenseKeyString[m_sense_key] : "");
+      super(format("Check condition! SenseKey=0x%02x (%s) ASC+Q=0x%04x",
+         m_sense_key, sensekey_description, m_ascq));
    }
 
    enum SenseFormat: int
@@ -60,6 +62,11 @@ class SCSICheckConditionException : SCSIException
       CURRENT_INFO_DESCR = 0x72,
       DEFERRED_ERR_DESCR = 0x73
    }
+
+   static const string[] SenseKeyString = [
+      "no sense", "recovered error", "not ready", "medium error", "hardware error",
+      "illegal request", "unit attention", "data protect", "blank check", "vendor specific",
+      "copy aborted", "aborted command", "", "volume overflow", "miscompare", "completed"];
 
    @property
    {
