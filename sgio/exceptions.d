@@ -31,6 +31,9 @@ class IoctlFailException : SCSIException
 class SCSICheckConditionException : SCSIException
 {
    /**
+    * Throws:
+    *    SCSIException when the sense buffer's response_code is neither of
+    *       SenseFormat.CURRENT_INFO_FIXED or SenseFormat.DEFERRED_ERR_FIXED
     * Params:
     *    sense = Sense buffer that is unmarshalled
     */
