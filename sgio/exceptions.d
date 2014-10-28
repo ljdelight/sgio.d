@@ -128,3 +128,16 @@ class BadOpCodeException : SCSIException
       super(message);
    }
 }
+
+/**
+ * TruncatedBufferException is thrown when a datain buffer is too small to hold response data,
+ * and when the undersized buffer doesn't cause a check condition exception. This can happen
+ * with devices that do not perfectly match the scsi spec.
+ */
+class TruncatedBufferException : SCSIException
+{
+   this(string message)
+   {
+      super(message);
+   }
+}

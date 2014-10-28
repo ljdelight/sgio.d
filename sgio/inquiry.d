@@ -307,8 +307,12 @@ class DeviceIdentificationInquiry : Inquiry_Base
       size_t offset = 4;
       while (offset < m_id_descriptors_length)
       {
-         // TODO: we can get a truncated buffer. probably throw an exception here.
-         assert(offset + 4 + datain[offset+3] <= datain.length);
+         // throw exception if we're missing part of the descriptor
+         if (offset + 4 + datain[offset+3] > datain.length)
+         {
+            throw new TruncatedBufferException("DeviceIdentificationInquiry contains descriptor"
+               ~ " which is not fully contained in the datain buffer");
+         }
          auto id_descriptor = new IdentificationDescriptor(datain[offset..$]);
          m_identification_list ~= id_descriptor;
 
@@ -554,9 +558,13 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       size_t offset = 4;
       while (offset < m_network_descriptors_length)
       {
-         // TODO: we can get a truncated buffer. probably throw an exception here.
-         assert(offset + 4 + bigEndianToNative!ushort(cast(ubyte[2]) datain[offset+2..offset+4])
-                     <= datain.length);
+         // throw exception if part of the descriptor is missing
+         if (offset + 4 + bigEndianToNative!ushort(cast(ubyte[2]) datain[offset+2..offset+4])
+                     > datain.length)
+         {
+            throw new TruncatedBufferException("ManagementNetworkAddressInquiry contains descriptor"
+               ~ " which is not fully contained in the datain buffer");
+         }
          auto ns_descriptor = new NetworkServicesDescriptor(datain[offset..$]);
          m_network_descriptors ~= ns_descriptor;
 
