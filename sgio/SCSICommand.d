@@ -103,13 +103,6 @@ protected:
     */
    void init_cdb(ubyte opcode)
    {
-      if (m_cdb != null)
-      {
-         // TODO(ljdelight): I'm not sure we need this if. Depends on the design, maybe remove it.
-         destroy(m_cdb);
-         m_cdb = null;
-      }
-
       if (opcode < 0x20)
       {
          m_cdb = new ubyte[6];
