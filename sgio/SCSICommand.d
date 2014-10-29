@@ -90,11 +90,14 @@ public:
       }
    }
 
+protected:
    /**
     * Allocate the CDB and set the opcode field. Opcode is used to determine cdb length.
     *
     * Params:
-    *    opcode = SCSI opcode that we send to the device.
+    *    opcode = SCSI opcode that we send to the device. Illegal ranges are [0x60,0x80) and
+    *                [0xc0,0xff]. Derived classes should override init_cdb if vendor-specific
+    *                opcodes are out of the valid range.
     * Throws:
     *    BadOpCodeException when the opcode is out of the valid range.
     */
