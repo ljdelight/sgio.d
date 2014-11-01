@@ -43,7 +43,8 @@ void executeIoctls(string deviceName)
    writeln("Attempting open on device ", deviceName);
    version (Windows)
    {
-      auto file = CreateFileW(deviceName,
+      wchar* thefile = std.utf.toUTFz!(wchar*)(deviceName);
+      auto file = CreateFileW(thefile,
                        GENERIC_WRITE|GENERIC_READ,
                        FILE_SHARE_WRITE|FILE_SHARE_READ,
                        null, OPEN_EXISTING,
@@ -52,8 +53,9 @@ void executeIoctls(string deviceName)
       if (file == INVALID_HANDLE_VALUE)
       {
          writeln("failed to open device");
+         return;
       }
-      auto dev = new SCSIDevice(cast(uint)(file));
+      auto dev = new SCSIDeviceBS(cast(uint)(file));
    }
    version (Posix)
    {
