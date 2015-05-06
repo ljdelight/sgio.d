@@ -81,25 +81,46 @@ void executeIoctls(string deviceName)
       writeln("\nNum supportedPages:", inquiry2.page_length);
       writeln(writeBuffer(inquiry2.supported_pages, inquiry2.supported_pages.length));
 
-      writeln("\n\n******** UNIT_SERIAL_NUMBER");
-      auto inquiry3 = new UnitSerialNumberInquiry(dev);
-      printSCSICommand(inquiry3);
-      writeln("Serial: ", inquiry3.unit_serial_number);
+      // create a quick map of the supported VPD pages
+      ubyte[ubyte] supportedVPDPages;
+      for (int idx = 0; idx < inquiry2.supported_pages.length; idx++)
+      {
+         ubyte vpdPage = inquiry2.supported_pages[idx];
+         supportedVPDPages[vpdPage] = vpdPage;
+      }
 
+      writeln("\n\n******** UNIT_SERIAL_NUMBER");
+      if (VPD.UNIT_SERIAL_NUMBER in supportedVPDPages)
+      {
+         auto inquiry3 = new UnitSerialNumberInquiry(dev);
+         printSCSICommand(inquiry3);
+         writeln("Serial: ", inquiry3.unit_serial_number);
+      }
+      else
+      {
+         writeln("USN is not supported");
+      }
 
       writeln("\n\n******** Device Identification Inquiry");
-      auto inquiry4 = new DeviceIdentificationInquiry(dev);
-      printSCSICommand(inquiry4);
-
-      try
+      if (VPD.DEVICE_IDENTIFICATION in supportedVPDPages)
       {
-         writeln("\n\n******** Management Network Address");
+         auto inquiry4 = new DeviceIdentificationInquiry(dev);
+         printSCSICommand(inquiry4);
+      }
+      else
+      {
+         writeln("Device identification is not supported");
+      }
+
+      writeln("\n\n******** Management Network Address");
+      if (VPD.MANAGEMENT_NETWORK_ADDRESS in supportedVPDPages)
+      {
          auto inquiry5 = new ManagementNetworkAddressInquiry(dev);
          printSCSICommand(inquiry5);
       }
-      catch (SCSICheckConditionException err)
+      else
       {
-         writeln("MNA VPD Page is not supported for this device");
+         writeln("MNA is no supported");
       }
 
 
@@ -108,12 +129,6 @@ void executeIoctls(string deviceName)
       printSCSICommand(readCapacity);
       writeln("total_lba: ", readCapacity.total_lba);
       writeln("blocksize: ", readCapacity.blocksize);
-
-
-      writeln("\n\n******** Read10 1 block at LBA 0");
-      auto read10 = new Read10(dev, 0, 1);
-      printSCSICommand(read10);
-
 
       writeln("\n\n******** Read16 1 block at LBA 0");
       auto read16 = new Read16(dev, 0, 1);
