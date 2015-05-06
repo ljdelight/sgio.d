@@ -44,8 +44,7 @@ public:
          ubyte group_num=0, ubyte wrprotect=0, ubyte dpo=0, ubyte fua=0)
    {
       assert(transfer_length*dev.blocksize <= dataout.length);
-      super(dev, 0, 0);
-      super.init_cdb(OPCODE.WRITE_10);
+      super(dev, OPCODE.WRITE_10, 0, 0);
       m_dataout = dataout;
 
       m_cdb[1] = writeXXHelperCreateByte(wrprotect, dpo, fua);
@@ -88,8 +87,7 @@ public:
          ubyte group_num=0, ubyte wrprotect=0, ubyte dpo=0, ubyte fua=0)
    {
       assert(transfer_length*dev.blocksize <= dataout.length);
-      super(dev, 0, 0);
-      super.init_cdb(OPCODE.WRITE_12);
+      super(dev, OPCODE.WRITE_12, 0, 0);
       m_dataout = dataout;
 
       m_cdb[1] = writeXXHelperCreateByte(wrprotect, dpo, fua);
@@ -132,8 +130,7 @@ public:
    {
       assert(transfer_length*dev.blocksize <= dataout.length);
       assert(dataout.length % dev.blocksize == 0);
-      super(dev, 0, 0);
-      super.init_cdb(OPCODE.WRITE_16);
+      super(dev, OPCODE.WRITE_16, 0, 0);
       m_dataout = dataout;
 
       m_cdb[1] = writeXXHelperCreateByte(wrprotect, dpo, fua);

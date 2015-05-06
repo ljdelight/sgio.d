@@ -56,10 +56,11 @@ public:
     * The constructor will allocate sense, dataout, and datain buffers as necessary
     * Params:
     *    dev = The device to send the SCSI command.
+    *    opcode = Opcode used to determine cdb buffer length.
     *    dataout_alloclen = Byte length used for allocation of the dataout buffer.
     *    datain_alloclen  = Byte length used for allocation of the datain buffer.
     */
-   this(SCSIDevice dev, int dataout_alloclen, int datain_alloclen)
+   this(SCSIDevice dev, ubyte opcode, int dataout_alloclen, int datain_alloclen)
    in
    {
       assert(dev !is null);
@@ -72,7 +73,8 @@ public:
       m_sense = new ubyte[32];
       m_dataout = ((dataout_alloclen > 0) ? new ubyte[dataout_alloclen] : null);
       m_datain = ((datain_alloclen > 0) ? new ubyte[datain_alloclen] : null);
-      m_cdb = null;
+
+      init_cdb(opcode);
    }
 
    ~this()

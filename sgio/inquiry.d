@@ -36,21 +36,28 @@ public:
     * Child classes override unmarshall() to extract information from the datain buffer.
     *
     * Throws:
-    *    SCSIException if eVPD is enabled and datain[1] does not match the pagecode
+    *    SCSIException if eVPD is enabled and datain[1] (from scsi response) does not match the pagecode
     * Params:
     *    dev = The device to send the SCSI command.
     *    pagecode = Pagecode of the SCSI Inquiry (defaults to 0, a std inquiry).
-    *    evpn = Enable Vital Product Data is used to send SCSI VPD inquries (defaults to true).
+    *    evpd = Enable Vital Product Data is used to send SCSI VPD inquries (defaults to true).
     *    datain_len = Byte length to allocate for the datain buffer.
     */
    this(SCSIDevice dev, ubyte pagecode = 0, bool evpd = true, int datain_len = 96)
    {
       // call super to allocate 0 for dataout buffer, and datain_len for datain buffer
-      super(dev, 0, datain_len);
+      super(dev, INQUIRY_COMMAND, 0, datain_len);
       this.m_pagecode = pagecode;
       this.m_evpd = evpd;
 
-      init_cdb(m_pagecode, datain_len);
+      if (m_evpd)
+      {
+         super.cdb[1] |= 0x01;
+         super.cdb[2] = m_pagecode;
+      }
+      super.cdb[3..5] = [(datain_len>>8) & 0xff, datain_len & 0xff];
+
+      // EXECUTE the inquiry command
       execute();
 
       // ensure we have a good datain buffer
@@ -63,23 +70,6 @@ public:
       // read these two fields since all inquiries have it
       m_peripheral_qualifier   = decodeByte(datain, 0, 0xe0);
       m_peripheral_device_type = decodeByte(datain, 0, 0x1f);
-   }
-
-   /**
-    * Initialize the CDB given the allocation length.
-    * Note: The pagecode field isn't needed, but I get strange compiler errors that I didn't
-    *       take the time to resolve ("use alias to introduce base class overload set").
-    */
-   protected void init_cdb(ubyte pagecode, int alloclen)
-   {
-      // initialize the cdb buffer
-      super.init_cdb(INQUIRY_COMMAND);
-      if (m_evpd)
-      {
-         super.cdb[1] |= 0x01;
-         super.cdb[2] = m_pagecode;
-      }
-      super.cdb[3..5] = [(alloclen>>8) & 0xff, alloclen & 0xff];
    }
 
    /**

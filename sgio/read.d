@@ -19,8 +19,7 @@ class ReadCapacity10 : SCSICommand
     */
    this(SCSIDevice dev, int datain_len = 8)
    {
-      super(dev, 0, datain_len);
-      super.init_cdb(OPCODE.READ_CAPACITY_10);
+      super(dev, OPCODE.READ_CAPACITY_10, 0, datain_len);
       execute();
    }
 
@@ -95,8 +94,7 @@ public:
    this(SCSIDeviceBS dev, uint lba, ushort transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, dev.blocksize*transfer_length);
-      super.init_cdb(OPCODE.READ_10);
+      super(dev, OPCODE.READ_10, 0, dev.blocksize*transfer_length);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
       m_cdb[2..6] = nativeToBigEndian!uint(lba);
@@ -150,8 +148,7 @@ public:
    this(SCSIDeviceBS dev, uint lba, uint transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, dev.blocksize*transfer_length);
-      super.init_cdb(OPCODE.READ_12);
+      super(dev, OPCODE.READ_12, 0, dev.blocksize*transfer_length);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
       m_cdb[2..6]  = nativeToBigEndian!uint(lba);
@@ -205,8 +202,7 @@ public:
    this(SCSIDeviceBS dev, ulong lba, uint transfer_length,
          ubyte group_num=0, ubyte rdprotect=0, ubyte dpo=0, ubyte fua=0, ubyte rarc=0)
    {
-      super(dev, 0, dev.blocksize*transfer_length);
-      super.init_cdb(OPCODE.READ_16);
+      super(dev, OPCODE.READ_16, 0, dev.blocksize*transfer_length);
 
       m_cdb[1] = readXXHelperCreateByte(rdprotect, dpo, fua, rarc);
       m_cdb[2..10]  = nativeToBigEndian!ulong(lba);
