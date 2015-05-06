@@ -200,7 +200,8 @@ public:
    /**
     * Params:
     *    device = Handle of opened device to send ioctls.
-    *    blocksize totalLBAs = Set these both to non-default values to avoid sending a ReadCapacity
+    *    blocksize = Read totalLBAs argument.
+    *    totalLBAs = Set both blocksize and totalLBAs args to non-default values to avoid sending a ReadCapacity
     *                to the device. Usually you'll only want to override these if you are VERY SURE
     *                of the values for the device (say, it was already queried).
     */
