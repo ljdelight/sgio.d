@@ -8,10 +8,10 @@ Features
 * Supports sending ioctls on both Windows and Linux (D syntax made this very easy)
 * Inquiries:
     * Standard Inquiry (0x00)
-    * Supported VPD Pages eVPD (0x00)
-    * Unit Serial Number eVPD (0x80)
-    * Device Identification eVPD (0x83)
-    * Management Network Address eVPD (0x85)
+    * Supported VPD Pages VPD (0x00)
+    * Unit Serial Number VPD (0x80)
+    * Device Identification VPD (0x83)
+    * Management Network Address VPD (0x85)
 * Read Commands:
     * ReadCapacity10
     * Read10, Read12, Read16
