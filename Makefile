@@ -25,7 +25,7 @@ $(OBJDIR):
 # target to build .so then run program
 .PHONY: run
 run: sgio_example
-	sudo LD_LIBRARY_PATH=. ./$< /dev/sda /dev/sdb
+	sudo LD_LIBRARY_PATH=. ./$< /dev/sda
 
 sgio_example: $(SGIOLIB) sgio_example.d | $(OBJDIR)
 	$(DD) $(DFLAGS) -c sgio_example.d -of$(OBJDIR)/sgio_example.o

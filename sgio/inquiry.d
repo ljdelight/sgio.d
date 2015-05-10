@@ -549,7 +549,8 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       while (offset < m_network_descriptors_length)
       {
          // throw exception if part of the descriptor is missing
-         if (offset + 4 + bigEndianToNative!ushort(cast(ubyte[2]) datain[offset+2..offset+4])
+         // TODO: a dmd compiler change broke the stdlib utility that I'm using here. Investigate the correct syntax later.
+         if (offset + 4 + (datain[offset+2]>>8 | datain[offset+2+1]) //bigEndianToNative!ushort(cast(ubyte[2]) datain[offset+2..offset+4])
                      > datain.length)
          {
             throw new TruncatedBufferException("ManagementNetworkAddressInquiry contains descriptor"
