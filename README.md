@@ -1,6 +1,5 @@
-sgio.d
+sgio.d [![Build Status](https://travis-ci.org/ljdelight/sgio.d.svg?branch=master)](https://travis-ci.org/ljdelight/sgio.d)
 ======
-
 sgio.d is an sgio library written in D to assist with writing low-level scsi device drivers and quick prototyping.
 
 Features
