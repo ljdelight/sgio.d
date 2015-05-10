@@ -1,6 +1,6 @@
 DD=dmd
 DEBUG=-g -debug -unittest
-DFLAGS=$(DEBUG) -property -de
+DFLAGS=$(DEBUG) -de
 DLDFLAGS=$(DEBUG) -defaultlib=libphobos2.so
 
 SGIOLIB := libsgio.so
