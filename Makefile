@@ -31,6 +31,13 @@ sgio_example: $(SGIOLIB) sgio_example.d | $(OBJDIR)
 	$(DD) $(DFLAGS) -c sgio_example.d -of$(OBJDIR)/sgio_example.o
 	$(DD) $(DLDFLAGS) -L-l:$(SGIOLIB) $(OBJDIR)/sgio_example.o
 
+.PHONY: test
+test:
+	echo "int main(string args[]) {return 0;}" > test.d
+	$(DD) -unittest test.d $(SRCS)
+	./test
+	rm -f ./test.d ./test.o ./test
+
 .PHONY: clean
 clean:
 	-rm -rf $(OBJDIR)
