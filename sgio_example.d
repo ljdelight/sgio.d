@@ -120,7 +120,7 @@ void executeIoctls(string deviceName)
       }
       else
       {
-         writeln("MNA is no supported");
+         writeln("MNA is not supported");
       }
 
 
