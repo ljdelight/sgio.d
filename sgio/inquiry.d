@@ -637,7 +637,7 @@ class ManagementNetworkAddressInquiry : Inquiry_Base
       assert(inquiry.network_descriptors.length == num_test_descriptors);
       foreach (descriptor; inquiry.network_descriptors())
       {
-         assert(descriptor.association != 2);
+         assert(descriptor.association == 2);
          assert(descriptor.service_type == 15);
          assert(descriptor.network_address_length == urlLength_multiple4);
          assert(bufferGetString(descriptor.network_address) == url);
