@@ -9,6 +9,7 @@ enum OPCODE : int
 {
    INQUIRY            = 0x12,
    READ_CAPACITY_10   = 0x25,
+   READ_CAPACITY_16   = 0x9e,
    READ_10            = 0x28,
    READ_12            = 0xa8,
    READ_16            = 0x88,
