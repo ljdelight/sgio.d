@@ -74,9 +74,13 @@ string writeBuffer(const(ubyte)[] buff, ulong length)
 
    for (int idx = 0; idx < length; ++idx)
    {
-      if ((idx > 0) && (0 == (idx % 8)))
+      if ((idx > 0) && (0 == (idx % 16)))
       {
          strBuf ~= "\n";
+      }
+      else if ((idx > 0) && (0 == (idx % 8)))
+      {
+         strBuf ~= " ";
       }
       // breaks output of non-chars in char range, but who cares in this code
       //if (isChar(buff[idx]))
