@@ -138,6 +138,10 @@ void executeIoctls(string deviceName)
       writeln("total_lba: ", readCapacity16.total_lba);
       writeln("blocksize: ", readCapacity16.blocksize);
 
+      writeln("\n\n******** Read Media Serial Number");
+      auto readMediaSerialNumber = new ReadMediaSerialNumber(dev);
+      printSCSICommand(readMediaSerialNumber);
+      writeln("serial: ", readMediaSerialNumber.serial);
    }
    catch (SCSIException err)
    {

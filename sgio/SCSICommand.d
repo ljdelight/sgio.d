@@ -15,6 +15,7 @@ enum OPCODE : int
    READ_16            = 0x88,
    WRITE_10           = 0x2a,
    WRITE_12           = 0xaa,
+   READ_MEDIA_SERIAL  = 0xab,
    WRITE_16           = 0x8a
 }
 
