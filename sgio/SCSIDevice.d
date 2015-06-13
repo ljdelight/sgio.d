@@ -131,6 +131,10 @@ public:
                                        iobuffer.length,
                                        &amountTransferred,
                                        null);
+         if (status == 0)
+         {
+            throw new IoctlFailException("ioctl failed, GetLastError() code is " ~ to!string(GetLastError()));
+         }
          writeln("\nIOBUFFER contents:");
          for (int k = 0; k < iobuffer.length; ++k)
          {
@@ -148,10 +152,7 @@ public:
          }
          writeln();
 
-         if (status == 0)
-         {
-            throw new IoctlFailException("ioctl failed, GetLastError() code is " ~ to!string(GetLastError()));
-         }
+
          writeln("ioctl return ", status);
          // TODO throw exception if scsi status is bad
          writeln("scsi status ", scsiPassThrough.ScsiStatus);
