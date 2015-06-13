@@ -94,7 +94,7 @@ public:
          scsiPassThrough.Cdb[] = 0;
          uint size = cast(uint)((cdb_buf.length <= scsiPassThrough.Cdb.length ?
                            cdb_buf.length : scsiPassThrough.Cdb.length));
-         writeln("CDB SIZE", size);
+         writeln("CDB length: ", size);
          scsiPassThrough.Cdb[0..size] = cdb_buf[0..size];
          scsiPassThrough.Length             = SCSI_PASS_THROUGH_DIRECT.sizeof;
          scsiPassThrough.ScsiStatus         = 0x00;
@@ -107,12 +107,16 @@ public:
          scsiPassThrough.DataTransferLength = bigEndianToNative!ushort(cast(ubyte[2]) cdb_buf[3..5]);
          // TODO(ljdelight): dataout needs setup
 
-         writeln("THE CDB:");
+         writeln("CDB buffer contents:");
          for (int k = 0; k < cdb_buf.length; ++k)
          {
-            if ((k > 0) && (0 == (k % 8)))
+            if ((k > 0) && (0 == (k % 16)))
             {
                writeln();
+            }
+            else if ((k > 0) && (0 == (k % 8)))
+            {
+               write(" ");
             }
             {
                writef("%02x ", cdb_buf[k]);
@@ -127,24 +131,29 @@ public:
                                        iobuffer.length,
                                        &amountTransferred,
                                        null);
-         writeln("THE IOBUFFER:");
+         writeln("\nIOBUFFER contents:");
          for (int k = 0; k < iobuffer.length; ++k)
          {
             if ((k > 0) && (0 == (k % 16)))
             {
                writeln();
             }
+            else if ((k > 0) && (0 == (k % 8)))
+            {
+               write(" ");
+            }
             {
                writef("%02x ", iobuffer[k]);
             }
          }
+         writeln();
 
          if (status == 0)
          {
-            writeln("ERROR from DeviceIoControl");
-            writeln("last error ", GetLastError());
+            throw new IoctlFailException("ioctl failed, GetLastError() code is " ~ to!string(GetLastError()));
          }
          writeln("ioctl return ", status);
+         // TODO throw exception if scsi status is bad
          writeln("scsi status ", scsiPassThrough.ScsiStatus);
          writeln("amount transferred ", amountTransferred);
       }
