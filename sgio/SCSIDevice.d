@@ -133,7 +133,26 @@ public:
                                        null);
          if (status == 0)
          {
-            throw new IoctlFailException("ioctl failed, GetLastError() code is " ~ to!string(GetLastError()));
+            int errorCode = GetLastError();
+            LPSTR lastErrorAsString = null;
+
+            FormatMessageA(
+               FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+               null,
+               errorCode,
+               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+               cast(LPSTR) &lastErrorAsString,
+               0,
+               null);
+
+            string exceptionMessage = "ioctl error code is " ~ to!string(errorCode);
+            if (lastErrorAsString != null)
+            {
+               exceptionMessage ~= ". " ~ to!string(lastErrorAsString);
+               LocalFree(lastErrorAsString);
+               lastErrorAsString = null;
+            }
+            throw new IoctlFailException(exceptionMessage);
          }
          writeln("\nIOBUFFER contents:");
          for (int k = 0; k < iobuffer.length; ++k)
