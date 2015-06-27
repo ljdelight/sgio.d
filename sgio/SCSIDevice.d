@@ -83,17 +83,17 @@ public:
    {
       version (Windows)
       {
-         // TODO(ljdelight): this doesn't f*cking work on windoze. i always get 44 byte response.
-         //       Probably more to think about for windows anyway. Like use SPTDWithBuffer?
          // TODO(ljdelight): clean up after fixing failed attempts
          const uint SENSE_LENGTH = 196;
          ubyte[512] iobuffer = 0;
          DWORD amountTransferred = -1;
          SCSI_PASS_THROUGH_DIRECT scsiPassThrough = {0};
 
+         // scsiPassThrough.Cdb is always 16 bytes and we only want to copy the first
+         // cdb_buf.length bytes from the cdb_buf.
+         uint size = cast(uint)(cdb_buf.length);
          scsiPassThrough.Cdb[] = 0;
-         uint size = cast(uint)((cdb_buf.length <= scsiPassThrough.Cdb.length ?
-                           cdb_buf.length : scsiPassThrough.Cdb.length));
+
          writeln("CDB length: ", size);
          scsiPassThrough.Cdb[0..size] = cdb_buf[0..size];
          scsiPassThrough.Length             = SCSI_PASS_THROUGH_DIRECT.sizeof;
@@ -104,7 +104,10 @@ public:
          scsiPassThrough.SenseInfoLength    = SENSE_LENGTH;
          scsiPassThrough.DataIn             = SCSI_IOCTL_DATA_IN;
          scsiPassThrough.DataBuffer         = datain_buf.ptr;
-         scsiPassThrough.DataTransferLength = bigEndianToNative!ushort(cast(ubyte[2]) cdb_buf[3..5]);
+
+         // This MUST be a multiple of the device's block size!
+         scsiPassThrough.DataTransferLength = 512;
+
          // TODO(ljdelight): dataout needs setup
 
          writeln("CDB buffer contents:");
