@@ -16,6 +16,7 @@ version (Posix)
 version (Windows)
 {
    import core.sys.windows.windows;
+   ubyte SG_INFO_OK = 0;
    alias HANDLE Handle;
 
    struct SCSI_PASS_THROUGH_DIRECT
@@ -174,6 +175,11 @@ public:
          }
          writeln();
 
+         // TODO sense_buf needs to be filled with data from scsiPassThrough... i think...
+         if (scsiPassThrough.ScsiStatus != SG_INFO_OK)
+         {
+            throw new SCSICheckConditionException(sense_buf);
+         }
 
          writeln("ioctl return ", status);
          // TODO throw exception if scsi status is bad
