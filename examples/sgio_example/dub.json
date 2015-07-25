@@ -1,0 +1,10 @@
+{
+    "name": "sgio_example",
+    "description": "Example usage of the sgio library",
+    "copyright": "Copyright © 2015, Lucas Burson",
+    "authors": ["Lucas Burson"],
+    "dependencies": {
+        "sgio-d": {"version": "~master", "path": "../../"}
+    },
+    "targetType": "executable"
+}

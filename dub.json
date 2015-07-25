@@ -1,0 +1,11 @@
+{
+    "name": "sgio-d",
+    "description": "sgio library for Linux and Windows",
+    "license": "LGPL-2.1",
+    "copyright": "Copyright © 2015, Lucas Burson",
+    "authors": [ "Lucas Burson" ],
+    "targetType": "library",
+
+    "-ddoxFilterArgs": ["--unittest-examples", "--min-protection=Protected"]
+
+}
