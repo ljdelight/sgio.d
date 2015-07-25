@@ -9,56 +9,6 @@ import sgio.SCSIDevice;
 import sgio.exceptions;
 
 /**
- * ReadMediaSerialNumber class to get the media's serial number
- */
-class ReadMediaSerialNumber : SCSICommand
-{
-   /**
-    * Params:
-    *    dev = Device to execute the ioctl.
-    *    datain_len = Datain buffer length
-    */
-   this(SCSIDevice dev, int datain_len = 64)
-   {
-      super(dev, OPCODE.READ_MEDIA_SERIAL, 0, datain_len);
-      m_cdb[1] = 0x01;
-      m_cdb[6..10] = nativeToBigEndian!uint(datain_len);
-      execute();
-   }
-
-   /**
-    * Method used to unmarshall the datain buffer.
-    */
-   override protected void unmarshall()
-   {
-      m_serial_length = bigEndianToNative!uint(datain[0..4]);
-      m_media_serial = bufferGetString(datain[4..4+m_serial_length]);
-   }
-
-   @property
-   {
-      string serial() { return m_media_serial; }
-   }
-
-   unittest
-   {
-      ubyte[64] datain_buf;
-      string serial = "THISISAREALSERIALNUMBEREHERE122";
-      datain_buf[0..4] = nativeToBigEndian(cast(uint) serial.length);
-      datain_buf[4..4+serial.length] = cast(ubyte[]) serial;
-
-      auto pseudoDev = new FakeSCSIDevice(null, datain_buf, null);
-      auto readMediaSerialNumber = new ReadMediaSerialNumber(pseudoDev);
-
-      assert(readMediaSerialNumber.serial == serial);
-   }
-
-private:
-   uint m_serial_length;
-   string m_media_serial;
-}
-
-/**
  * ReadCapacity16 class to send a read capacity
  */
 class ReadCapacity16 : SCSICommand
