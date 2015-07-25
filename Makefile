@@ -4,7 +4,7 @@ DFLAGS=$(DEBUG) -de
 DLDFLAGS=$(DEBUG) -defaultlib=libphobos2.so
 
 SGIOLIB := libsgio.so
-SRCDIR  := sgio
+SRCDIR  := source/sgio
 SRCS    := $(wildcard $(SRCDIR)/*.d)
 OBJDIR  := objdir
 OBJS    := $(addprefix $(OBJDIR)/, \
@@ -17,7 +17,7 @@ $(SGIOLIB): $(OBJS)
 	$(DD) $(DLDFLAGS) $(OBJS) -shared -of$@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.d | $(OBJDIR)
-	$(DD) $(DFLAGS) -fPIC -c $< -of$@
+	$(DD) $(DFLAGS) -fPIC -c -Isource $< -of$@
 
 $(OBJDIR):
 	mkdir $(OBJDIR)
@@ -28,7 +28,7 @@ run: sgio_example
 	sudo LD_LIBRARY_PATH=. ./$< /dev/sda
 
 sgio_example: $(SGIOLIB) sgio_example.d | $(OBJDIR)
-	$(DD) $(DFLAGS) -c sgio_example.d -of$(OBJDIR)/sgio_example.o
+	$(DD) $(DFLAGS) -c sgio_example.d -Isource -of$(OBJDIR)/sgio_example.o
 	$(DD) $(DLDFLAGS) -L-l:$(SGIOLIB) $(OBJDIR)/sgio_example.o
 
 .PHONY: test
