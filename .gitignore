@@ -1,3 +1,12 @@
 objdir/
+doc/
+import/
+lib/
+sgiod.json
 libsgio.so
 sgio_example
+sgio_example.exe
+sgio_example.ilk
+sgio_example.map
+sgio_example.pdb
+sgio_example.obj
