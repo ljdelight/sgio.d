@@ -33,7 +33,7 @@ version (Windows)
       ULONG TimeOutValue;
       PVOID DataBuffer;
       ULONG SenseInfoOffset;
-      UCHAR Cdb[16];
+      UCHAR[16] Cdb;
    }
 
    extern (Windows) BOOL DeviceIoControl(

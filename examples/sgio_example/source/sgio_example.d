@@ -154,7 +154,7 @@ void executeIoctls(string deviceName)
 
 }
 
-int main(string args[])
+int main(string[] args)
 {
    if (args.length <= 1)
    {
