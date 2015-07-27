@@ -3,8 +3,9 @@
 import std.stdio                 : write, writef, writeln, writefln, File;
 import core.sys.windows.windows;
 
-import sgio.inquiry;
-import sgio.read;
+import sgio.inquiry.inquiry;
+import sgio.read.read;
+import sgio.read.readcapacity;
 import sgio.SCSIDevice;
 import sgio.utility;
 import sgio.exceptions;

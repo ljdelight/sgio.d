@@ -29,6 +29,23 @@ body
    return res;
 }
 
+
+/**
+ * Simple helper function to create the second byte of the CDB for read(10), read(12), and read(16).
+ * For a description of the arguments, see the Read(XX) commands.
+ */
+protected ubyte readXXHelperCreateByte(ubyte rdprotect, ubyte dpo, ubyte fua, ubyte rarc)
+{
+   ubyte res = 0;
+   res |= (rdprotect << 5) & 0xe0;
+   res |= dpo  ? 0x10 : 0;
+   res |= fua  ? 0x80 : 0;
+   res |= rarc ? 0x04 : 0;
+
+   return res;
+}
+
+
 /**
  * Get a string from buffer where the string spans the length of the buffer. The span
  * does not need to be null-terminated.

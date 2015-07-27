@@ -4,7 +4,7 @@ module sgio.SCSIDevice;
 import sgio.exceptions;
 import std.conv;
 import std.bitmanip;
-import std.stdio                 : write, writef, writeln, writefln, File;
+import std.stdio : write, writef, writeln, writefln, File;
 
 version (Posix)
 {
@@ -248,7 +248,7 @@ public:
       super(device);
       if (blocksize == -1 || totalLBAs == -1)
       {
-         import sgio.read;
+         import sgio.read.readcapacity;
          auto rc10 = new ReadCapacity10(this);
          m_blocksize = rc10.blocksize;
          m_total_lba = rc10.total_lba;
