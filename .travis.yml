@@ -1,3 +1,4 @@
 language: d
-script: make test
-
+script:
+  - dub test || exit 1
+  - echo "[INFO] Building sgio_example"; cd examples/sgio_example && dub build || exit 1
