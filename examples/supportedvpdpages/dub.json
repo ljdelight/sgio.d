@@ -1,0 +1,10 @@
+{
+    "name": "supportedvpdpages",
+    "description": "Getting the supported VPD pages",
+    "copyright": "Copyright © 2015, Lucas Burson",
+    "authors": ["Lucas Burson"],
+    "dependencies": {
+        "sgio-d": {"version": "~master", "path": "../../"}
+    },
+    "targetType": "executable"
+}
