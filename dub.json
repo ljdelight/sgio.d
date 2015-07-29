@@ -1,7 +1,7 @@
 {
     "name": "sgio-d",
     "description": "sgio library for Linux and Windows",
-    "license": "LGPL-2.1",
+    "license": "BSL-1.0",
     "copyright": "Copyright © 2015, Lucas Burson",
     "authors": [ "Lucas Burson" ],
     "targetType": "library",
