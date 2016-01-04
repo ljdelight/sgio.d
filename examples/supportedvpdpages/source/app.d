@@ -1,4 +1,5 @@
 import std.stdio : writeln;
+import core.sys.windows.windows;
 
 import sgio.inquiry.inquiry;
 import sgio.SCSIDevice;
