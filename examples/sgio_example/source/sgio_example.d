@@ -34,9 +34,9 @@ enum SENSE_CODES: int
 void printSCSICommand(SCSICommand command)
 {
    writeln("CDB:");
-   write(writeBuffer(command.cdb, command.cdb.length));
+   write(bufferToHexDump(command.cdb, command.cdb.length));
    writeln("DATAIN:");
-   write(writeBuffer(command.datain, command.datain.length));
+   write(bufferToHexDump(command.datain, command.datain.length));
 }
 
 void executeIoctls(string deviceName)
@@ -69,7 +69,7 @@ void executeIoctls(string deviceName)
       writeln("******* SCSI STANDARD INQUIRY");
       auto inquiry = new StandardInquiry(dev);
       printSCSICommand(inquiry);
-      writeBuffer(inquiry.datain, inquiry.datain.length);
+      bufferToHexDump(inquiry.datain, inquiry.datain.length);
       writeln("t10_vendor_identification: ", inquiry.t10_vendor_identification);
       writeln("product_identification: ", inquiry.product_identification);
       writeln("additional_length: ", inquiry.additional_length);
@@ -80,7 +80,7 @@ void executeIoctls(string deviceName)
       auto inquiry2 = new SupportedVPDPagesInquiry(dev);
       printSCSICommand(inquiry2);
       writeln("\nNum supportedPages:", inquiry2.page_length);
-      writeln(writeBuffer(inquiry2.supported_pages, inquiry2.supported_pages.length));
+      writeln(bufferToHexDump(inquiry2.supported_pages, inquiry2.supported_pages.length));
 
       // create a quick map of the supported VPD pages
       ubyte[ubyte] supportedVPDPages;

@@ -44,7 +44,7 @@ int main(string[] args)
    {
       auto vpdpages = new SupportedVPDPagesInquiry(dev);
       writeln("Here are the suppored VPD pages for " ~ deviceName);
-      writeln(writeBuffer(vpdpages.supported_pages, vpdpages.supported_pages.length));
+      writeln(bufferToHexDump(vpdpages.supported_pages, vpdpages.supported_pages.length));
    }
    catch (SCSIException err)
    {

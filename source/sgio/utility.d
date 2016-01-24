@@ -2,7 +2,8 @@
 module sgio.utility;
 
 import std.string : format, strip;
-import std.xml : isChar;
+import std.conv : to;
+import std.ascii : isPrintable, toLower;
 
 /**
  * Decode the byte in the buffer given the offset and bitmask.
@@ -85,31 +86,40 @@ unittest
    assert("LoL" == bufferGetString(null_term[0..null_term.length]));
 }
 
-string writeBuffer(const(ubyte)[] buff, ulong length)
-{
-   string strBuf = "";
 
-   for (int idx = 0; idx < length; ++idx)
+string bufferToHexDump(const(ubyte)[] buff, ulong length)
+{
+   string prettyBuffer = "";
+
+   string lhs = format("%06x", 0) ~ ":";
+   string rhs = "|";
+
+   // Loop over the buffer using a 1-based count
+   for (int idx = 1; idx <= length; idx++)
    {
-      if ((idx > 0) && (0 == (idx % 16)))
+      // From the buffer create the hex and char version.
+      string byteAsHex = format("%02x", buff[idx-1]);
+      char byteAsChar = to!char(isPrintable(buff[idx-1]) ? toLower(buff[idx-1]) : '.');
+
+      lhs ~= " " ~ byteAsHex;
+      rhs ~= byteAsChar;
+
+      if (idx > 0 && idx % 16 == 0)
       {
-         strBuf ~= "\n";
-      }
-      else if ((idx > 0) && (0 == (idx % 8)))
+         prettyBuffer ~= lhs ~ "  " ~ rhs ~ "|\n";
+         lhs = format("%06x", idx) ~ ":";
+         rhs = "|";
+      } else if (idx > 0 && idx % 8 == 0)
       {
-         strBuf ~= " ";
-      }
-      // breaks output of non-chars in char range, but who cares in this code
-      //if (isChar(buff[idx]))
-      //{
-      //   strBuf ~= " " ~ cast(char)(buff[idx]) ~ " ";
-      //}
-      //else
-      {
-         strBuf ~= format("%02x ", buff[idx]);
+         lhs ~= " ";
       }
    }
-   strBuf ~= "\n";
 
-   return strBuf;
+   // make an output if the buffer is less than 16 bytes
+   if (prettyBuffer == "")
+   {
+      prettyBuffer = lhs ~ "  " ~ rhs ~ "|\n";
+   }
+
+   return prettyBuffer;
 }
