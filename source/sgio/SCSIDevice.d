@@ -104,7 +104,7 @@ public:
             m_device = m_file.fileno();
          } catch (ErrnoException e)
          {
-            throw new ConstructionException(e.what());
+            throw new ConstructionException(e.msg);
          }
       }
    }
