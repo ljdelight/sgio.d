@@ -1,7 +1,5 @@
 
-
-import std.stdio                 : write, writef, writeln, writefln, File;
-import core.sys.windows.windows;
+import std.stdio : write, writef, writeln, writefln, File;
 
 import sgio.inquiry.inquiry;
 import sgio.read.read;
@@ -42,27 +40,7 @@ void printSCSICommand(SCSICommand command)
 void executeIoctls(string deviceName)
 {
    writeln("Attempting open on device ", deviceName);
-   version (Windows)
-   {
-      wchar* thefile = std.utf.toUTFz!(wchar*)(deviceName);
-      auto file = CreateFileW(thefile,
-                       GENERIC_WRITE|GENERIC_READ,
-                       FILE_SHARE_WRITE|FILE_SHARE_READ,
-                       null, OPEN_EXISTING,
-                       FILE_ATTRIBUTE_NORMAL, null);
-
-      if (file == INVALID_HANDLE_VALUE)
-      {
-         writeln("failed to open device");
-         return;
-      }
-      auto dev = new SCSIDeviceBS(cast(uint)(file));
-   }
-   version (Posix)
-   {
-      auto file = File(deviceName, "rb");
-      auto dev = new SCSIDeviceBS(file.fileno());
-   }
+   auto dev = new SCSIDeviceBS(deviceName);
 
    try
    {
@@ -143,16 +121,6 @@ void executeIoctls(string deviceName)
    {
       writeln("Something went wrong... Error: ", err.msg);
    }
-
-   version (Posix)
-   {
-      file.close();
-   }
-   version (Windows)
-   {
-      CloseHandle(file);
-   }
-
 }
 
 int main(string[] args)

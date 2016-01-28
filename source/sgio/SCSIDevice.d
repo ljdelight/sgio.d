@@ -6,6 +6,7 @@ import std.conv;
 import std.bitmanip;
 import std.stdio : write, writef, writeln, writefln, File;
 
+
 version (Posix)
 {
    import sgio.sg_io;
@@ -61,16 +62,67 @@ class SCSIDevice
 {
 private:
    Handle m_device;
+   version(Posix)
+   {
+      // Keep a reference of the file so it isn't closed externally.
+      File m_file;
+   }
 
 public:
    /**
-    * SCSIDevice ctor to save the device handle of an open device.
+    * SCSIDevice ctor opens a device that can talk scsi. This class constructs for any valid file,
+    * including devices which cannot accept scsi ioctls. If a fail-fast constructor is preferred,
+    * use SCSIDeviceBS since it sends a ReadCapacity in the constructor.
+    *
     * Params:
-    *    device = Handle of opened device to send ioctls.
+    *    device = Filesystem path of the device to open. This device must support scsi ioctls.
+    * Throws:
+    *    ConstructionException if there is an error in the ctor
     */
-   this(uint device)
+   this(string device)
    {
-      m_device = cast(Handle)(device);
+      version (Windows)
+      {
+         import core.sys.windows.windows;
+         wchar* thefile = std.utf.toUTFz!(wchar*)(device);
+         m_device = CreateFileW(thefile,
+                          GENERIC_WRITE|GENERIC_READ,
+                          FILE_SHARE_WRITE|FILE_SHARE_READ,
+                          null, OPEN_EXISTING,
+                          FILE_ATTRIBUTE_NORMAL, null);
+
+         if (m_device == INVALID_HANDLE_VALUE)
+         {
+            throw new ConstructionException("Failed to open device '%s'".format(device));
+         }
+      }
+      version (Posix)
+      {
+         try
+         {
+            m_file = File(device, "rb");
+            m_device = m_file.fileno();
+         } catch (ErrnoException e)
+         {
+            throw new ConstructionException(e.what());
+         }
+      }
+   }
+
+
+   /**
+    * Destructor to close the open device.
+    */
+   ~this()
+   {
+      version(Windows)
+      {
+         CloseHandle(m_device);
+      }
+      version (Posix)
+      {
+         m_file.close();
+      }
    }
 
    /**
@@ -237,13 +289,13 @@ class SCSIDeviceBS : SCSIDevice
 public:
    /**
     * Params:
-    *    device = Handle of opened device to send ioctls.
+    *    device = Filesystem path of the device to open. This device must support scsi ioctls.
     *    blocksize = Read totalLBAs argument.
     *    totalLBAs = Set both blocksize and totalLBAs args to non-default values to avoid sending a ReadCapacity
     *                to the device. Usually you'll only want to override these if you are VERY SURE
     *                of the values for the device (say, it was already queried).
     */
-   this(uint device, int blocksize=-1, ulong totalLBAs=-1)
+   this(string device, int blocksize=-1, ulong totalLBAs=-1)
    {
       super(device);
       if (blocksize == -1 || totalLBAs == -1)

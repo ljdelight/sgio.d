@@ -141,3 +141,15 @@ class TruncatedBufferException : SCSIException
       super(message);
    }
 }
+
+/**
+ * ConstructionException is thrown when one of the sgio.d constructors encountered an
+ * error and could not create the object.
+ */
+class ConstructionException : SCSIException
+{
+   this(string message)
+   {
+      super(message);
+   }
+}
