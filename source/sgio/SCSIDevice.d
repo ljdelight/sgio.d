@@ -5,7 +5,7 @@ import sgio.exceptions;
 import std.conv;
 import std.bitmanip;
 import std.stdio : write, writef, writeln, writefln, File;
-
+import std.exception : ErrnoException;
 
 version (Posix)
 {
