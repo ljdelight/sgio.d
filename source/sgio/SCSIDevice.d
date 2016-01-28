@@ -81,6 +81,13 @@ public:
     */
    this(string device)
    {
+      version (unittest)
+      {
+         if (device.length == 0)
+         {
+            return;
+         }
+      }
       version (Windows)
       {
          import core.sys.windows.windows;
@@ -349,7 +356,7 @@ version (unittest)
        */
       this(ubyte[] dataout_buf = null, ubyte[] datain_buf = null, ubyte[] sense_buf = null)
       {
-         super(-1, 512, 10000);
+         super("", 512, 10000);
          m_dataout_buf = dataout_buf.dup;
          m_datain_buf = datain_buf.dup;
          m_sense_buf = sense_buf.dup;
