@@ -99,7 +99,7 @@ string bufferToHexDump(const(ubyte)[] buff, ulong length)
    {
       // From the buffer create the hex and char version.
       string byteAsHex = format("%02x", buff[idx-1]);
-      char byteAsChar = to!char(isPrintable(buff[idx-1]) ? toLower(buff[idx-1]) : '.');
+      char byteAsChar = to!char(isPrintable(buff[idx-1]) ? buff[idx-1] : '.');
 
       lhs ~= " " ~ byteAsHex;
       rhs ~= byteAsChar;
@@ -123,3 +123,23 @@ string bufferToHexDump(const(ubyte)[] buff, ulong length)
 
    return prettyBuffer;
 }
+
+
+unittest
+{
+   import std.stdio;
+   ubyte[] bufferHello = [0x10, 0xFE, 'h', 'e', 'L', 'L', 'o', '.'];
+   assert("000000: 10 fe 68 65 4c 4c 6f 2e   |..heLLo.|\n"
+      == bufferToHexDump(bufferHello, bufferHello.length));
+
+   ubyte[] bufferTwoLines = [
+      0x00, 0x19, 'T', 'h', 'i', 's', ' ', 'i',
+      0x10, 0xFE, 's', ' ', 'T', 'W', 'O', ' ',
+      0x10, 0xFE, 'L', 'i', 'n', 'e', 's', '.',
+      0x10, 0xFE, ' ', 'P', 'a', 's', 's', '!'];
+   assert(
+      "000000: 00 19 54 68 69 73 20 69  10 fe 73 20 54 57 4f 20  |..This i..s TWO |\n" ~
+      "000010: 10 fe 4c 69 6e 65 73 2e  10 fe 20 50 61 73 73 21  |..Lines... Pass!|\n"
+      == bufferToHexDump(bufferTwoLines, bufferTwoLines.length));
+}
+
